@@ -5,7 +5,7 @@ ___
 ## Overview
 This project bridges the gap between theoretical aerodynamics and real-world motorsport engineering. By combining **FastF1 telemetry data** with **analytical aerodynamic models**, it demonstrates how fundamental fluid dynamics principles govern the performance of a modern Formula 1 car.
 Rather than treating aerodynamics as a black box, this project derives downforce, drag, and aerodynamic efficiency from first principles, calibrates analytical models against published CFD literature, and validates predictions against actual on-track telemetry.
----
+___
 ## Engineering Relevance
 ### Mechanical & Aerospace Engineering Applications
 This project serves as a practical demonstration of core engineering concepts applied to a high-performance system:
