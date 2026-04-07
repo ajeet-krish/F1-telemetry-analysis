@@ -2,7 +2,6 @@
 
 An engineering analysis of Formula 1 car aerodynamics using real telemetry data, analytical models, and first-principles physics. Built with Python and Jupyter Notebooks.
 
----
 ## Overview
 This project aims to connect theoretical aerodynamics and real-world motorsport engineering. By combining FastF1 telemetry data with analytical aerodynamic models, it demonstrates how fundamental fluid dynamics principles govern the performance of a modern Formula 1 car.
 Rather than treating aerodynamics as a black box, this project derives downforce, drag, and aerodynamic efficiency from first principles, calibrates analytical models against published CFD literature, and validates predictions against actual on-track telemetry.
@@ -20,14 +19,14 @@ The project showcases modern Python as an engineering tool:
 - **Matplotlib**: Publication-quality engineering visualizations (polar plots, contour maps, waterfall charts)
 - **Pandas**: Telemetry data processing and statistical analysis
 - **FastF1**: Direct integration with official F1 timing and telemetry APIs
----
+
 ## Understanding Theory Using Real-World Data
 ### Real-World Validation
 Every model is tested against actual telemetry:
 - **FastF1 API**: Real lap data from 2022-2026 F1 seasons
 - **Telemetry Correlation**: Speed traces, DRS activation, throttle/brake inputs
 - **Track-Specific Analysis**: Circuit-dependent aero performance variations
----
+
 ## Planned Features
 - **Analytical Aero Models**: Front wing, rear wing, floor, and complete car models
 - **Downforce Analysis**: Component breakdown, speed correlation, track section mapping
