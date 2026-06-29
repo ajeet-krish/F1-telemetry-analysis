@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Setups -- F1 Aerodynamics</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">F1 Aerodynamics</div>
+    <nav class="site-nav">
+      <a href="index.html">Home</a>
+      <a href="theory.html">Theory</a>
+      <a href="downforce.html"    >Downforce</a>
+      <a href="ride_height.html">Ride Height</a>
+      <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
+      <a href="track_setups.html" class="active">Track Setups</a>
+      <a href="cornering.html">Cornering</a>
+      <a href="strategy.html">Strategy</a>
+      <a href="cfd_venturi.html">CFD Venturi</a>
+      <a href="implementation.html">Code</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="analysis-header">
+      <h1>Track-Specific Aero Setups</h1>
+      <p class="meta">Comparing high-downforce (Monaco) vs low-drag (Monza) configurations using FastF1 telemetry</p>
+    </div>
+
+    <section class="section">
+      <h2>The Setup Spectrum</h2>
+      <p>
+        Every F1 weekend, teams dial in a track-specific aero configuration that
+        balances downforce (for cornering grip) against drag (for straight-line
+        speed). The extremes of this spectrum are Monaco, requiring maximum
+        downforce for tight corners, and Monza, where low drag is essential for
+        the long straights.
+      </p>
+      <p>
+        In our model, the Monaco setup uses steep wing angles (front: -8 deg,
+        rear: -17 deg) and a low ride height (35 mm) for maximum ground effect.
+        The Monza setup uses shallow angles (front: -3 deg, rear: -8 deg) and a
+        higher ride height (65 mm) to reduce drag, accepting lower cornering
+        grip in exchange for higher top speed.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Speed on Track</h2>
+      <p>
+        Speed-colored track maps show the stark contrast between the two circuits.
+        Monaco's lap is dominated by low-speed corners with brief acceleration
+        zones, while Monza is a high-speed sweep with long straights.
+      </p>
+      <div class="figure">
+        <img src="assets/images/track_setups_speed_on_track.png" alt="Speed on track Monaco vs Monza">
+        <div class="caption">Speed heatmaps for Verstappen's fastest laps at Monaco (left) and Monza (right). Monaco has no long straights; the entire lap is a sequence of corners with the highest speed at the tunnel exit (~280 km/h). Monza's lap is dominated by the long start-finish straight and the curved Ascari-Roggia sequence.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Gear Distribution</h2>
+      <p>
+        Gear usage reveals the corner density of each circuit. Monaco rarely
+        exceeds 6th gear, while Monza spends significant time in 8th gear.
+      </p>
+      <div class="figure">
+        <img src="assets/images/track_setups_gear_distribution.png" alt="Gear distribution comparison">
+        <div class="caption">Gear usage comparison. Monaco is dominated by 2nd and 3rd gear corners (hairpins and chicanes). Monza clusters in 6th-8th gear, with substantial time at full throttle in top gear.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Sector Speed Comparison</h2>
+      <p>
+        Dividing each lap into 5 equal-distance sectors reveals the contrasting
+        speed profiles. Monaco's average speed is ~60 km/h lower across all
+        sectors compared to Monza.
+      </p>
+      <div class="figure">
+        <img src="assets/images/track_setups_sector_speeds.png" alt="Sector speed comparison">
+        <div class="caption">Average sector speeds for 5 equal-distance sectors. Monaco's sector average speeds range from ~120 km/h (sector 3: Rascasse) to ~190 km/h (sector 4: tunnel exit). Monza averages 240-260 km/h per sector.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Aero Setup: Modeled Performance</h2>
+      <p>
+        The analytical model predicts the downforce and drag difference between
+        the two setups. Monaco's high-downforce configuration produces
+        approximately 2x the downforce of the Monza setup at equal speed, at
+        the cost of 50-70% more drag.
+      </p>
+      <div class="figure">
+        <img src="assets/images/track_setups_aero_comparison.png" alt="Aero setup comparison">
+        <div class="caption">Modeled downforce (left) and drag (right) for Monaco vs Monza aero configurations. The Monaco setup trades an extra ~10 kN of drag at 300 km/h for a ~15 kN downforce gain, enabling cornering at speeds that would be impossible with the Monza setup.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Speed Profile Overlay</h2>
+      <p>
+        Normalizing both laps to 100% distance and overlaying the speed traces
+        shows the extreme difference in circuit character.
+      </p>
+      <div class="figure">
+        <img src="assets/images/track_setups_speed_profile.png" alt="Speed profile comparison">
+        <div class="caption">Normalized speed profile overlay. Monaco never exceeds 290 km/h and spends most of the lap below 200 km/h. Monza exceeds 330 km/h multiple times and maintains high average speed throughout. The contrast defines the engineering challenge: one car must optimize for two completely different aerodynamic regimes.</div>
+      </div>
+    </section>
+
+    <section class="key-findings">
+      <h3>Key Findings</h3>
+      <ul>
+        <li><strong>Setup range is extreme:</strong> Monaco produces ~2x the downforce of Monza at equal speed. This is the widest setup range in F1 between consecutive race weekends.</li>
+        <li><strong>Drag penalty is real:</strong> The high-downforce Monaco setup adds 50-70% more drag, but this is irrelevant at Monaco since top speed never exceeds 290 km/h.</li>
+        <li><strong>Gear utilization:</strong> Monaco stays in 2nd-4th gear for 70% of the lap. Monza uses 6th-8th gear for 60%+ of the lap. The gearbox ratios and final drive must match the aero setup.</li>
+        <li><strong>Sector speed gap:</strong> Monza's sector average speeds are 70-100 km/h higher than Monaco's in every sector, reflecting the fundamental difference in circuit types.</li>
+        <li><strong>Ride height tradeoff:</strong> Monaco's 35 mm ride height maximizes ground-effect downforce but risks plank wear. Monza's 65 mm setup reduces ground effect but is safer over kerbs.</li>
+      </ul>
+    </section>
+
+    <section class="limitations">
+      <h3>Limitations</h3>
+      <ul>
+        <li>The analytical model uses simplified wing and floor coefficients; real teams have detailed CFD and wind tunnel data for each circuit.</li>
+        <li>Telemetry is from the fastest lap; setup data (ride height, wing angles) are assumed from typical values rather than team telemetry (which is proprietary).</li>
+        <li>Only two circuits are compared; a full season analysis would show a continuous spectrum across 24 circuits with different aero demands.</li>
+        <li>Weather, tire degradation, and traffic effects are not considered. Real setup choices are influenced by race strategy and expected conditions.</li>
+        <li>The 1.5 Hz GPS telemetry resolution limits the granularity of speed profiling, especially at Monza where long straights are sparsely sampled.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>F1 Aerodynamics Analysis &middot; Mercedes-inspired dark theme</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false}
+        ]
+      });
+    });
+  </script>
+</body>
+</html>

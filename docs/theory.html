@@ -16,7 +16,7 @@
     <nav class="site-nav">
       <a href="index.html">Home</a>
       <a href="theory.html" class="active">Theory</a>
-      <a href="downforce.html">Downforce</a>
+      <a href="downforce.html"    >Downforce</a>
       <a href="ride_height.html">Ride Height</a>
       <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
       <a href="track_setups.html">Track Setups</a>
@@ -34,16 +34,126 @@
     </div>
 
     <section class="section">
-      <h2>Coming Soon</h2>
-      <p>This page will cover the fundamental fluid dynamics concepts that underpin all F1 aerodynamics analysis in this project.</p>
+      <h2>Bernoulli's Principle and Pressure Distribution</h2>
+      <p>
+        At the heart of all aerodynamic downforce is Bernoulli's principle: as
+        fluid velocity increases, static pressure decreases. An F1 car generates
+        downforce by accelerating air underneath the car and over the wings,
+        creating a low-pressure region that sucks the car toward the ground.
+      </p>
+      <div class="equation">
+        $$p + \frac{1}{2}\rho v^2 + \rho g h = \text{constant}$$
+      </div>
+      <p>
+        For horizontal flows typical of F1 aerodynamics, the gravitational term
+        is negligible, and the tradeoff simplifies to pressure vs dynamic
+        pressure: $p + q = p_0$, where $q = \frac{1}{2}\rho v^2$ and $p_0$ is
+        total pressure.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Lift, Drag, and the Kutta-Joukowski Theorem</h2>
+      <p>
+        Wings generate lift through circulation -- the difference in flow speed
+        between the upper and lower surfaces. The Kutta-Joukowski theorem
+        relates lift per unit span to circulation:
+      </p>
+      <div class="equation">
+        $$L' = \rho v \Gamma$$
+      </div>
+      <p>
+        where $\Gamma$ is the circulation around the airfoil. In F1, all wings
+        are inverted (negative camber) so that lift acts downward -- this is
+        downforce.
+      </p>
+      <p>
+        Drag consists of two primary components:
+      </p>
+      <div class="equation">
+        $$C_D = C_{D0} + k C_L^2$$
+      </div>
+      <p>
+        The first term $C_{D0}$ is profile drag (skin friction + form drag). The
+        second term is induced drag -- a direct consequence of generating lift.
+        This parabolic drag polar is fundamental to understanding the
+        downforce-drag tradeoff in F1.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Ground Effect Aerodynamics</h2>
+      <p>
+        When a wing operates close to the ground, the flow is constrained
+        between the wing and the ground plane, creating a venturi-like
+        acceleration. The ground effect increases downforce significantly:
+      </p>
+      <div class="equation">
+        $$C_{L,ground} = C_{L,free} \cdot \left(1 + \frac{A}{h} + \frac{B}{h^2}\right)$$
+      </div>
+      <p>
+        where $h$ is ride height and $A,B$ are empirical coefficients. This
+        inverse relationship means that lower ride heights produce dramatically
+        more downforce -- but also create the risk of porpoising, where the
+        downforce itself pushes the car down until the flow stalls, causing the
+        ride height to rebound.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Reynolds and Mach Number Regimes</h2>
+      <p>
+        F1 aerodynamics operates in challenging fluid regimes:
+      </p>
+      <div class="equation">
+        $$Re = \frac{\rho v L}{\mu} \approx 1\text{--}5 \times 10^6$$
+      </div>
+      <div class="equation">
+        $$Ma = \frac{v}{a} \approx 0.05\text{--}0.33$$
+      </div>
+      <p>
+        Reynolds numbers in the millions indicate fully turbulent flow with
+        thin boundary layers. The flow is subsonic (Ma &lt; 0.3) for most
+        components, meaning compressibility effects are small but not
+        negligible at top speed (Ma ~ 0.33 at 380 km/h on the front wing).
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Venturi Effect and Diffuser Pressure Recovery</h2>
+      <p>
+        The floor of an F1 car acts as a venturi tunnel. Air accelerates
+        through the narrowest point (the throat) between the floor and the
+        ground, creating maximum suction. The diffuser at the rear then
+        decelerates the flow, recovering pressure and reducing drag.
+      </p>
+      <p>
+        The pressure recovery in the diffuser is critical: if the diffuser
+        angle is too steep ($> 20^\circ$), the flow separates, destroying
+        downforce and increasing drag. This is why the 2024 regulations limit
+        diffuser angle to $17^\circ$.
+      </p>
+    </section>
+
+    <section class="key-findings">
+      <h3>Core Principles</h3>
       <ul>
-        <li>Bernoulli's principle and pressure distribution</li>
-        <li>Navier-Stokes equations and boundary layers</li>
-        <li>Lift, drag, and the Kutta-Joukowski theorem</li>
-        <li>Ground effect aerodynamics</li>
-        <li>Reynolds number regimes in F1</li>
-        <li>Drag polar theory and induced drag</li>
-        <li>Venturi effect and diffuser pressure recovery</li>
+        <li><strong>Downforce scales with $v^2$:</strong> Double the speed, quadruple the downforce. This quadratic relationship defines F1 cornering performance.</li>
+        <li><strong>Induced drag is unavoidable:</strong> Every Newton of downforce creates induced drag. The L/D ratio determines aerodynamic efficiency.</li>
+        <li><strong>Ground effect is non-linear:</strong> Downforce increases as $1/h$, making ride height the most sensitive aerodynamic parameter.</li>
+        <li><strong>Boundary layer management:</strong> F1 cars use vortex generators, slots, and profile shaping to keep flow attached at high angles of attack.</li>
+        <li><strong>Wake sensitivity:</strong> The turbulent wake of a leading car reduces the following car's downforce by 35-50%, the fundamental "dirty air" problem.</li>
+      </ul>
+    </section>
+
+    <section class="limitations">
+      <h3>References</h3>
+      <ul>
+        <li>Katz, J. (2006). "Aerodynamics of Race Cars." <em>Annual Review of Fluid Mechanics</em>.</li>
+        <li>Dominy, R.G. (1994). "The aerodynamic development of Formula One cars." <em>SAE Technical Paper</em>.</li>
+        <li>Zhang et al. (2006). "Automobile aerodynamics." <em>Progress in Aerospace Sciences</em>.</li>
+        <li>Newey, A. (2017). "How to Build a Car." HarperCollins.</li>
+        <li>RaceTech CFD Analysis (2025). "2026 F1 Car Aerodynamics."</li>
       </ul>
     </section>
   </main>
@@ -55,6 +165,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       renderMathInElement(document.body, {

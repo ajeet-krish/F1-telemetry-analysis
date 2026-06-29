@@ -1,0 +1,302 @@
+"""
+Track-specific aero setup analysis for F1 aerodynamics.
+
+Compares high-downforce (Monaco) vs low-downforce (Monza) setups
+using FastF1 telemetry data.
+
+Generates:
+  - Speed-on-track heatmap for both circuits
+  - Gear distribution comparison
+  - Sector speed analysis
+  - DRS zone comparison
+  - Aero setup parameter difference (modeled)
+"""
+
+from pathlib import Path
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+from matplotlib.collections import LineCollection
+import pandas as pd
+
+from src.core.models import F1Car
+from src.core.physics import kmh_to_ms
+from src.core.style import (
+    set_f1_style,
+    MERCEDES_TEAL,
+    MERCEDES_DARK,
+    MERCEDES_CARD,
+    MERCEDES_GRAY,
+    MERCEDES_WHITE,
+    MERCEDES_RED,
+    MERCEDES_AMBER,
+    teal_colormap,
+)
+from src.core.telemetry import TelemetryLoader
+
+set_f1_style()
+
+ASSET_DIR = Path("docs/assets/images")
+ASSET_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _load_track_data(year: int = 2024):
+    """Load telemetry for Monaco (high DF) and Monza (low DF)."""
+    monaco = TelemetryLoader(year, "Monaco", "R")
+    monza = TelemetryLoader(year, "Monza", "R")
+    mco_tel = monaco.lap_telemetry("VER")
+    mza_tel = monza.lap_telemetry("VER")
+    return monaco, monza, mco_tel, mza_tel
+
+
+def speed_on_track_map(save: bool = True):
+    """Speed-colored track maps for Monaco and Monza."""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+
+    tracks = [
+        ("Monaco", 2024, ax1),
+        ("Monza", 2024, ax2),
+    ]
+
+    cmap = plt.cm.plasma
+
+    for name, year, ax in tracks:
+        loader = TelemetryLoader(year, name, "R")
+        lap = loader.fastest_lap("VER")
+        tel = lap.get_telemetry()
+
+        x = tel["X"]
+        y = tel["Y"]
+        speed = tel["Speed"]
+
+        points = np.array([x, y]).T.reshape(-1, 1, 2)
+        segments = np.concatenate([points[:-1], points[1:]], axis=1)
+
+        norm = Normalize(vmin=speed.min(), vmax=speed.max())
+        lc = LineCollection(segments, cmap=cmap, norm=norm, linewidth=3, alpha=0.9)
+        lc.set_array(speed.values)
+        ax.add_collection(lc)
+
+        ax.autoscale()
+        ax.set_aspect("equal")
+        ax.set_title(f"{name} - VER Fastest Lap", color=MERCEDES_WHITE)
+        ax.set_facecolor(MERCEDES_DARK)
+        ax.tick_params(colors=MERCEDES_GRAY)
+        for spine in ax.spines.values():
+            spine.set_color(MERCEDES_CARD)
+
+    cbar_ax = fig.add_axes([0.25, 0.05, 0.5, 0.02])
+    cbar = fig.colorbar(lc, cax=cbar_ax, orientation="horizontal", label="Speed (km/h)")
+    cbar.ax.xaxis.set_tick_params(color=MERCEDES_GRAY)
+    plt.setp(plt.getp(cbar.ax, "xticklabels"), color=MERCEDES_GRAY)
+
+    fig.suptitle("Speed on Track: Monaco vs Monza", fontsize=16, y=0.98, color=MERCEDES_WHITE)
+    fig.tight_layout(rect=[0, 0.08, 1, 0.95])
+
+    if save:
+        path = ASSET_DIR / "track_setups_speed_on_track.png"
+        fig.savefig(path)
+        plt.close(fig)
+        print(f"  Saved {path}")
+    return fig
+
+
+def gear_distribution(save: bool = True):
+    """Gear usage histogram comparing Monaco vs Monza."""
+    tracks = [
+        ("Monaco", 2024, MERCEDES_TEAL),
+        ("Monza", 2024, MERCEDES_RED),
+    ]
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    bar_width = 0.35
+    x = np.arange(1, 9)
+
+    for i, (name, year, color) in enumerate(tracks):
+        loader = TelemetryLoader(year, name, "R")
+        tel = loader.lap_telemetry("VER")
+        gear_col = "nGear" if "nGear" in tel.columns else "Gear"
+        if gear_col not in tel.columns:
+            continue
+        gear_counts = tel[gear_col].value_counts().sort_index()
+        gear_pct = gear_counts / gear_counts.sum() * 100
+        all_gears = pd.Series(0.0, index=range(1, 9))
+        for g, pct in gear_pct.items():
+            if int(g) in all_gears.index:
+                all_gears[int(g)] = pct
+        offset = (i - 0.5) * bar_width
+        ax.bar(x + offset, all_gears.values, bar_width, label=name, color=color, alpha=0.85)
+
+    ax.set_xlabel("Gear")
+    ax.set_ylabel("Usage (%)")
+    ax.set_title("Gear Distribution: Monaco vs Monza")
+    ax.set_xticks(x)
+    ax.set_xticklabels([str(g) for g in x])
+    ax.legend(framealpha=0.9)
+    ax.grid(True, alpha=0.3, axis="y")
+
+    for label in ax.get_xticklabels() + ax.get_yticklabels():
+        label.set(color=MERCEDES_GRAY)
+
+    if save:
+        path = ASSET_DIR / "track_setups_gear_distribution.png"
+        fig.savefig(path)
+        plt.close(fig)
+        print(f"  Saved {path}")
+    return fig
+
+
+def sector_speed_comparison(save: bool = True):
+    """Sector-by-sector speed comparison between circuits."""
+    tracks = [
+        ("Monaco", 2024, MERCEDES_TEAL, "o-"),
+        ("Monza", 2024, MERCEDES_RED, "s--"),
+    ]
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    all_sectors = {}
+    for name, year, color, marker in tracks:
+        loader = TelemetryLoader(year, name, "R")
+        lap = loader.fastest_lap("VER")
+        tel = lap.get_telemetry()
+
+        distance = tel["Distance"]
+        speed = tel["Speed"]
+        total_dist = distance.max()
+
+        n_sectors = 5
+        sector_boundaries = np.linspace(0, total_dist, n_sectors + 1)
+        sector_speeds = []
+        for i in range(n_sectors):
+            mask = (distance >= sector_boundaries[i]) & (distance < sector_boundaries[i + 1])
+            sector_speeds.append(speed[mask].mean())
+
+        sector_labels = [f"S{i+1}" for i in range(n_sectors)]
+        ax.plot(sector_labels, sector_speeds, marker, color=color, linewidth=2.5,
+                markersize=8, label=name)
+        all_sectors[name] = sector_speeds
+
+    ax.set_xlabel("Sector")
+    ax.set_ylabel("Average Speed (km/h)")
+    ax.set_title("Sector Speed Profile: Monaco vs Monza")
+    ax.legend(framealpha=0.9)
+    ax.grid(True, alpha=0.3)
+
+    for label in ax.get_xticklabels() + ax.get_yticklabels():
+        label.set(color=MERCEDES_GRAY)
+
+    if save:
+        path = ASSET_DIR / "track_setups_sector_speeds.png"
+        fig.savefig(path)
+        plt.close(fig)
+        print(f"  Saved {path}")
+    return fig
+
+
+def aero_setup_comparison(save: bool = True):
+    """Model aero setup differences between Monaco and Monza.
+
+    Monaco: high downforce (steeper wing angles, lower ride height)
+    Monza: low drag (shallower wing angles, higher ride height)
+    """
+    car = F1Car()
+    speeds_kmh = np.linspace(60, 340, 80)
+    speeds_ms = kmh_to_ms(speeds_kmh)
+
+    monaco_df = []
+    monaco_drag = []
+    monza_df = []
+    monza_drag = []
+
+    for v in speeds_ms:
+        mco = car.component_breakdown(v, front_alpha=-8.0, rear_alpha=-17.0, ride_height=0.035)
+        mza = car.component_breakdown(v, front_alpha=-3.0, rear_alpha=-8.0, ride_height=0.065)
+        monaco_df.append(mco["downforce"]["total"] / 1000)
+        monaco_drag.append(mco["drag"]["total"] / 1000)
+        monza_df.append(mza["downforce"]["total"] / 1000)
+        monza_drag.append(mza["drag"]["total"] / 1000)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+    ax1.plot(speeds_kmh, monaco_df, color=MERCEDES_TEAL, linewidth=2.5, label="Monaco (High DF)")
+    ax1.plot(speeds_kmh, monza_df, color=MERCEDES_RED, linewidth=2.5, linestyle="--", label="Monza (Low DF)")
+    ax1.fill_between(speeds_kmh, monaco_df, monza_df, alpha=0.15, color=MERCEDES_TEAL)
+    ax1.set_xlabel("Speed (km/h)")
+    ax1.set_ylabel("Downforce (kN)")
+    ax1.set_title("Downforce: Monaco vs Monza Setup")
+    ax1.legend(framealpha=0.9)
+    ax1.grid(True, alpha=0.3)
+
+    ax2.plot(speeds_kmh, monaco_drag, color=MERCEDES_TEAL, linewidth=2.5, label="Monaco (High DF)")
+    ax2.plot(speeds_kmh, monza_drag, color=MERCEDES_RED, linewidth=2.5, linestyle="--", label="Monza (Low DF)")
+    ax2.fill_between(speeds_kmh, monaco_drag, monza_drag, alpha=0.15, color=MERCEDES_RED)
+    ax2.set_xlabel("Speed (km/h)")
+    ax2.set_ylabel("Drag (kN)")
+    ax2.set_title("Drag: Monaco vs Monza Setup")
+    ax2.legend(framealpha=0.9)
+    ax2.grid(True, alpha=0.3)
+
+    for ax in [ax1, ax2]:
+        for label in ax.get_xticklabels() + ax.get_yticklabels():
+            label.set(color=MERCEDES_GRAY)
+
+    fig.suptitle("Aero Setup: Monaco vs Monza", fontsize=14, y=1.02)
+    fig.tight_layout()
+
+    if save:
+        path = ASSET_DIR / "track_setups_aero_comparison.png"
+        fig.savefig(path)
+        plt.close(fig)
+        print(f"  Saved {path}")
+    return fig
+
+
+def speed_profile_comparison(save: bool = True):
+    """Normalized speed profile overlay for Monaco vs Monza."""
+    tracks = [
+        ("Monaco", 2024, MERCEDES_TEAL),
+        ("Monza", 2024, MERCEDES_RED),
+    ]
+
+    fig, ax = plt.subplots(figsize=(14, 5))
+
+    for name, year, color in tracks:
+        loader = TelemetryLoader(year, name, "R")
+        tel = loader.lap_telemetry("VER")
+        distance = tel["Distance"]
+        speed = tel["Speed"]
+        dist_norm = distance / distance.max() * 100
+        ax.plot(dist_norm, speed, color=color, linewidth=1.5, alpha=0.8, label=name)
+
+    ax.set_xlabel("Lap Progress (%)")
+    ax.set_ylabel("Speed (km/h)")
+    ax.set_title("Normalized Speed Profile: Monaco vs Monza")
+    ax.legend(framealpha=0.9)
+    ax.grid(True, alpha=0.3)
+    ax.set_xlim(0, 100)
+
+    for label in ax.get_xticklabels() + ax.get_yticklabels():
+        label.set(color=MERCEDES_GRAY)
+
+    if save:
+        path = ASSET_DIR / "track_setups_speed_profile.png"
+        fig.savefig(path)
+        plt.close(fig)
+        print(f"  Saved {path}")
+    return fig
+
+
+def run_all():
+    """Generate all track setup analysis visuals."""
+    print("Generating track setup analysis visuals...")
+    speed_on_track_map()
+    gear_distribution()
+    sector_speed_comparison()
+    aero_setup_comparison()
+    speed_profile_comparison()
+    print("Done. Files saved to docs/assets/images/")
+
+
+if __name__ == "__main__":
+    run_all()

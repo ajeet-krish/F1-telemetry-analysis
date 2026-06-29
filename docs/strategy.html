@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Race Strategy -- F1 Aerodynamics</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">F1 Aerodynamics</div>
+    <nav class="site-nav">
+      <a href="index.html">Home</a>
+      <a href="theory.html">Theory</a>
+      <a href="downforce.html"    >Downforce</a>
+      <a href="ride_height.html">Ride Height</a>
+      <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
+      <a href="track_setups.html">Track Setups</a>
+      <a href="cornering.html">Cornering</a>
+      <a href="strategy.html" class="active">Strategy</a>
+      <a href="cfd_venturi.html">CFD Venturi</a>
+      <a href="implementation.html">Code</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="analysis-header">
+      <h1>Race Strategy</h1>
+      <p class="meta">Tire degradation, fuel-adjusted pace, undercut simulation, and multi-strategy race projections</p>
+    </div>
+
+    <section class="section">
+      <h2>Strategy Fundamentals</h2>
+      <p>
+        Race strategy in F1 is the art of optimizing pit stop timing, tire
+        compound selection, and fuel management to minimize total race time.
+        Every decision involves tradeoffs: softer tires are faster but degrade
+        quicker, carrying extra fuel slows the car but extends the stint.
+      </p>
+      <div class="equation">
+        $$T_{race} = \sum_{i=1}^{N} t_{lap,i} + N_{stops} \cdot t_{pit}$$
+      </div>
+      <p>
+        where $t_{lap,i}$ depends on tire compound, fuel load, tire age, and
+        track position. The pit stop loss $t_{pit} \approx 22s$ must be
+        regained through fresher tires and lower fuel weight.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Tire Compound Performance</h2>
+      <p>
+        The Pirelli tire range spans five dry compounds (C1 hardest to C5
+        softest) plus intermediates and wets. Each step softer gives roughly
+        0.4-0.5 seconds per lap but degrades faster.
+      </p>
+      <div class="figure">
+        <img src="assets/images/strategy_tire_delta.png" alt="Tire compound delta">
+        <div class="caption">Typical lap time delta by tire compound. The step from C1 (hard) to C5 (hypersoft) is worth ~1.8 seconds per lap. Wet and intermediate compounds are significantly slower but necessary in rain conditions.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Fuel-Adjusted Pace</h2>
+      <p>
+        As fuel burns off at ~2.2 kg per lap, the car becomes lighter and
+        faster. The fuel effect is modeled as approximately 0.035 seconds per
+        kilogram of fuel.
+      </p>
+      <div class="figure">
+        <img src="assets/images/strategy_fuel_correction.png" alt="Fuel correction">
+        <div class="caption">Lap time improvement as fuel burns off during a stint. Starting with 110 kg, the car loses ~3.5 kg per lap (fuel + tire wear). The lap time drops from ~83s at the start to ~77s on low fuel at lap 30 -- a 6-second swing from fuel alone.</div>
+      </div>
+      <p>
+        This fuel effect is one reason why teams sometimes extend a stint:
+        the combination of lighter fuel load and track evolution can offset
+        tire degradation for several laps.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Undercut Simulation</h2>
+      <p>
+        The undercut is a strategy where a driver pits early to gain track
+        position over a rival. The net advantage depends on:
+      </p>
+      <div class="equation">
+        $$\Delta = G_{new} + G_{out} - L_{in} - G_{rival,out}$$
+      </div>
+      <p>
+        where $G_{new}$ is the grip gain from fresh tires, $G_{out}$ is the
+        out-lap performance, and $L_{in}$ is the traffic penalty on the
+        in-lap.
+      </p>
+      <div class="figure">
+        <img src="assets/images/strategy_undercut.png" alt="Undercut simulation">
+        <div class="caption">Left: Undercut sensitivity to in-lap traffic penalty. Right: Estimated undercut advantage by pit stop number for a Monaco-length race. Stop 1 typically has the highest advantage due to the smallest tire age delta between drivers.</div>
+      </div>
+      <p>
+        The undercut works best when the in-lap traffic penalty is low and the
+        out-lap is clean. At Monaco, track position is so valuable that even a
+        small undercut advantage can secure a place that is impossible to
+        overtake on track.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Tire Degradation Model</h2>
+      <p>
+        Tire wear causes lap time to increase linearly with tire age. The
+        degradation rate depends on compound (softer = faster degradation),
+        track surface, temperature, and driving style.
+      </p>
+      <div class="figure">
+        <img src="assets/images/strategy_tire_degradation.png" alt="Tire degradation">
+        <div class="caption">Simulated tire degradation for a soft compound over a 30-lap stint. The trend shows ~0.06 seconds per lap of degradation, totaling ~1.8 seconds by lap 30. Random scatter reflects driver/ traffic variation.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Race Pace Projection</h2>
+      <p>
+        Comparing three strategy options for a 78-lap Grand Prix reveals the
+        tradeoff between pit stop time and tire performance.
+      </p>
+      <div class="figure">
+        <img src="assets/images/strategy_race_pace.png" alt="Race pace projection">
+        <div class="caption">Left: Lap time traces for 1-stop, 2-stop, and 3-stop strategies. Pit stops appear as vertical gaps. Right: Total race time comparison. The 2-stop strategy often wins on total time, but track position and overtaking difficulty can make the 1-stop preferable for circuits like Monaco.</div>
+      </div>
+      <p>
+        The simulation confirms that a 2-stop strategy (Soft-Medium-Hard) is
+        typically fastest on total time, but the 1-stop is often preferred at
+        circuits where overtaking is difficult. The 3-stop is only viable when
+        tire degradation is severe or when a late safety car creates a cheap
+        pit stop opportunity.
+      </p>
+    </section>
+
+    <section class="key-findings">
+      <h3>Key Findings</h3>
+      <ul>
+        <li><strong>Fuel effect dominates:</strong> The fuel burn-off can improve lap times by ~6s over a full stint, often offsetting tire degradation for the first 10-15 laps.</li>
+        <li><strong>Undercut window:</strong> The undercut is most effective when the in-lap traffic penalty is under 8 seconds. At Monaco, any undercut opportunity should be taken given the overtaking difficulty.</li>
+        <li><strong>Tire delta compounds:</strong> A two-step softer compound (e.g., C3 to C1) is worth ~0.9s/lap but may degrade 2-3x faster, making stint length the key strategic variable.</li>
+        <li><strong>2-stop optimum:</strong> For a typical 78-lap race, the 2-stop strategy minimizes total race time by balancing pit stop cost against tire performance.</li>
+        <li><strong>Circuit dependency:</strong> Strategy choice depends heavily on track layout. Monaco favors 1-stop (track position priority), Monza favors 2-stop (overtaking is easier, tire degradation is lower).</li>
+      </ul>
+    </section>
+
+    <section class="limitations">
+      <h3>Limitations</h3>
+      <ul>
+        <li>Tire degradation model assumes linear wear; real tire behavior is more complex (grain, blister, off-sequence degradation).</li>
+        <li>Fuel effect model is linear in remaining fuel; real fuel sensitivity varies with track layout and driving style.</li>
+        <li>Undercut simulation does not account for track position dynamics, safety cars, or virtual safety car periods.</li>
+        <li>Race pace projection uses representative base lap times; actual times depend on driver skill, car performance, and track conditions.</li>
+        <li>No weather modeling -- rain completely changes tire choice, degradation rates, and strategy windows.</li>
+        <li>Strategy optimization does not consider team tactics (team orders, covering rivals, splitting strategies across two cars).</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>F1 Aerodynamics Analysis &middot; Mercedes-inspired dark theme</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false}
+        ]
+      });
+    });
+  </script>
+</body>
+</html>

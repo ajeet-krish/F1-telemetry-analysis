@@ -342,3 +342,49 @@ code[class*="language-"],
 pre[class*="language-"] {
   font-size: 0.85rem;
 }
+
+.code-block {
+  margin: 1.5rem 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 1rem;
+  background: #1e1e1e;
+}
+
+/* Data tables */
+.table-wrapper {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+  color: var(--accent);
+  font-weight: 600;
+  background: var(--card);
+}
+
+.data-table td {
+  color: var(--secondary);
+}
+
+.data-table tr:hover td {
+  background: rgba(0, 210, 190, 0.03);
+}

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Architecture -- F1 Aerodynamics</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">F1 Aerodynamics</div>
+    <nav class="site-nav">
+      <a href="index.html">Home</a>
+      <a href="theory.html">Theory</a>
+      <a href="downforce.html"    >Downforce</a>
+      <a href="ride_height.html">Ride Height</a>
+      <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
+      <a href="track_setups.html">Track Setups</a>
+      <a href="cornering.html">Cornering</a>
+      <a href="strategy.html">Strategy</a>
+      <a href="cfd_venturi.html">CFD Venturi</a>
+      <a href="implementation.html" class="active">Code</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="analysis-header">
+      <h1>Code Architecture</h1>
+      <p class="meta">Modular Python pipeline: analytical models, FastF1 telemetry, and visualization</p>
+    </div>
+
+    <section class="section">
+      <h2>Project Structure</h2>
+      <p>
+        The project is organized into three tiers: core models, analysis modules,
+        and runner scripts. Each analysis module produces standalone visuals for
+        the HTML portfolio site.
+      </p>
+
+      <div class="code-block">
+        <pre><code class="language-plaintext">src/
+  core/
+    models.py        F1Car, FrontWing, RearWing, Floor (dataclass-based)
+    telemetry.py     FastF1 wrapper, session/lap/track map loading
+    physics.py       ISA atmosphere, Re/Mach, dynamic pressure
+    style.py         Mercedes-themed matplotlib dark theme
+  analysis/
+    downforce.py     Component breakdown, L/D curves
+    ride_height.py   Ground effect, porpoising envelopes
+    drs.py           DRS drag reduction, 2026 active aero
+    track_setups.py  Monaco vs Monza telemetry comparison
+    cornering.py     G-g diagram, corner radius estimation
+    strategy.py      Tire delta, fuel correction, undercut
+    regulations_2026.py  Active straight, Z-mode, battery model
+  cfd/
+    su2_runner.py    SU2Config, SU2Solver (adapted from Soccer CFD)
+    venturi.py       2D venturi with moving wall (planned)
+    validate.py      Validation against published data
+docs/
+  *.html             Standalone pages with KaTeX + Prism.js
+  css/style.css      Mercedes dark theme CSS
+  assets/images/     Generated PNG visuals</code></pre>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Core Models</h2>
+      <p>
+        The <code>F1Car</code> class in <code>src/core/models.py</code>
+        combines front wing, rear wing, and floor models with body drag.
+        Each component is a dataclass with calibrated coefficients:
+      </p>
+
+      <div class="code-block">
+        <pre><code class="language-python">class FrontWing:
+    # Multi-element inverted airfoil
+    cl_alpha = 8.0  # per radian (with slot effect)
+    cd0 = 0.025     # zero-lift drag
+    k_induced = 0.12
+
+class RearWing:
+    cl_alpha = 8.5
+    drs_drag_reduction = 0.70
+    drs_downforce_loss = 0.50
+
+class Floor:
+    cl_base = -0.5
+    # Ground effect: cl = cl_base * (1 + A/h + B/h^2)
+    A = 0.05; B = 0.001</code></pre>
+      </div>
+      <p>
+        The <code>component_breakdown()</code> method returns downforce and
+        drag per component, used by all analysis modules.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Telemetry Wrapper</h2>
+      <p>
+        <code>TelemetryLoader</code> in <code>src/core/telemetry.py</code>
+        wraps FastF1 with a simple interface:
+      </p>
+
+      <div class="code-block">
+        <pre><code class="language-python">loader = TelemetryLoader(2024, "Monaco", "R")
+lap = loader.fastest_lap("VER")
+tel = lap.get_telemetry()  # Speed, nGear, DRS, Throttle, etc.</code></pre>
+      </div>
+      <p>
+        FastF1 caches API responses in <code>~/.cache/fastf1/</code> for fast
+        re-runs. Note: <code>nGear</code> (not <code>Gear</code>) is the column
+        name for gear position.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Visualization Style</h2>
+      <p>
+        All plots use the Mercedes-inspired dark theme from
+        <code>src/core/style.py</code>:
+      </p>
+
+      <div class="code-block">
+        <pre><code class="language-python">set_f1_style()
+# Background: #1a1a1a  |  Accent: #00D2BE (teal)
+# Text: #ffffff         |  Cards: #2a2a2a
+# Secondary: #d4d4d4</code></pre>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Runner Pattern</h2>
+      <p>
+        Each analysis module has a matching runner script that imports and
+        runs all visual functions:
+      </p>
+
+      <div class="code-block">
+        <pre><code class="language-python">#!/usr/bin/env python3
+"""Runner for downforce analysis."""
+from src.analysis.downforce import run_all
+
+if __name__ == "__main__":
+    run_all()</code></pre>
+      </div>
+      <p>
+        Runners save images to <code>docs/assets/images/</code> and are
+        idempotent (safe to re-run).
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Visual Summary</h2>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Visuals</th>
+              <th>Data Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>downforce.py</td><td>Component breakdown, L/D, drag polar, speed scatter</td><td>Analytical model</td></tr>
+            <tr><td>ride_height.py</td><td>DF vs height, C_L contour, porpoising envelope, balance shift</td><td>Analytical model</td></tr>
+            <tr><td>drs.py</td><td>DRS drag polar, speed delta, overtaking advantage, telemetry trace</td><td>Analytical + FastF1</td></tr>
+            <tr><td>track_setups.py</td><td>Speed heatmaps, gear distribution, sector speeds, aero comparison</td><td>FastF1 + model</td></tr>
+            <tr><td>cornering.py</td><td>G-g diagram, speed-radius, grip envelope, corner classification</td><td>FastF1 + model</td></tr>
+            <tr><td>strategy.py</td><td>Tire delta, fuel correction, undercut, degradation, race pace</td><td>Analytical model</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Extending the Pipeline</h2>
+      <p>
+        To add a new analysis:
+      </p>
+      <ol>
+        <li>Create <code>src/analysis/new_module.py</code> with a <code>run_all()</code> function</li>
+        <li>Create <code>run_new_module.py</code> that calls <code>run_all()</code></li>
+        <li>Create <code>docs/new_module.html</code> referencing the images</li>
+        <li>Run <code>uv run python -m src.build_site</code> to sync nav</li>
+      </ol>
+      <p>
+        The <code>F1Car</code> model can be extended with new components
+        (diffuser, bargeboards, T-tray) by adding dataclass configs and
+        implementing <code>cl()</code> and <code>cd()</code> methods.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>F1 Aerodynamics Analysis &middot; Mercedes-inspired dark theme</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false}
+        ]
+      });
+    });
+  </script>
+</body>
+</html>

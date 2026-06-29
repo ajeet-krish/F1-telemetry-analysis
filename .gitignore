@@ -16,9 +16,4 @@ wheels/
 
 # OS
 .DS_Store
-
-# SU2 simulation output
-su2_runs/**/output_*/
-su2_runs/**/*.vtu
-su2_runs/**/*.dat
-su2_runs/**/*.csv
+AGENTS.md

@@ -54,20 +54,25 @@ src/
     track_setups.py     Circuit-dependent aero, speed-on-track maps
     cornering.py        Downforce to lateral grip mapping
     strategy.py         Tire degradation, fuel-adjusted pace
-    regulations_2026.py Active aero modes, Z-mode, battery tradeoffs
-  cfd/                # SU2 CFD integration
+  cfd/                # SU2 CFD integration (planned)
     su2_runner.py       SU2 config, mesh generation, solver wrapper
     venturi.py          2D venturi tunnel with moving wall, diffuser angle sweep
     validate.py         Validation against published data
+runners/              # Entry-point scripts (invoked via python -m)
+    downforce.py        uv run python -m runners.downforce
+    ride_height.py      uv run python -m runners.ride_height
+    drs.py              uv run python -m runners.drs
+    track_setups.py     uv run python -m runners.track_setups
+    cornering.py        uv run python -m runners.cornering
+    strategy.py         uv run python -m runners.strategy
+    all.py              Run all analyses sequentially
+    build_site.py       Nav bar sync for HTML pages
 docs/                 # Standalone HTML portfolio site (GitHub Pages root)
   index.html, theory.html, downforce.html, ride_height.html,
   drs_active_aero.html, track_setups.html, cornering.html,
   strategy.html, cfd_venturi.html, implementation.html
   css/style.css         Mercedes-inspired dark theme
   assets/images/        Generated plots and visualizations
-run_*.py              # One runner script per analysis module
-run_all.py            # Orchestrator to regenerate everything
-su2_runs/             # SU2 config files, meshes, results
 ```
 
 ## Getting Started
@@ -76,12 +81,15 @@ su2_runs/             # SU2 config files, meshes, results
 # Install dependencies
 uv sync
 
-# Regenerate all analysis outputs
-uv run python run_all.py
+# Run a single analysis
+uv run python -m runners.downforce
+uv run python -m runners.ride_height
 
-# Or run individual analyses
-uv run python run_downforce.py
-uv run python run_ride_height.py
+# Run all analyses
+uv run python -m runners.all
+
+# Sync nav bar across all HTML pages
+uv run python -m runners.build_site
 
 # Preview the site locally
 uv run python -m http.server -d docs 8000
@@ -102,14 +110,14 @@ All Python dependencies are in `pyproject.toml` and installed via `uv sync`.
 | Phase | Status |
 |-------|--------|
 | 0 - Core infrastructure | Done |
-| 1 - Downforce analysis | In progress |
-| 2 - Ride height | Planned |
-| 3 - DRS & Active aero | Planned |
-| 4 - Track setups | Planned |
-| 5 - Cornering | Planned |
-| 6 - Strategy | Planned |
+| 1 - Downforce analysis | Done |
+| 2 - Ride height | Done |
+| 3 - DRS & Active aero | Done |
+| 4 - Track setups | Done |
+| 5 - Cornering | Done |
+| 6 - Strategy | Done |
 | 7 - CFD venturi | Planned |
-| 8 - Site polish | Planned |
+| 8 - Site polish | Done |
 
 ## References
 

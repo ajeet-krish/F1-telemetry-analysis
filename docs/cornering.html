@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cornering Performance -- F1 Aerodynamics</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">F1 Aerodynamics</div>
+    <nav class="site-nav">
+      <a href="index.html">Home</a>
+      <a href="theory.html">Theory</a>
+      <a href="downforce.html"    >Downforce</a>
+      <a href="ride_height.html">Ride Height</a>
+      <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
+      <a href="track_setups.html">Track Setups</a>
+      <a href="cornering.html" class="active">Cornering</a>
+      <a href="strategy.html">Strategy</a>
+      <a href="cfd_venturi.html">CFD Venturi</a>
+      <a href="implementation.html">Code</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="analysis-header">
+      <h1>Cornering Performance</h1>
+      <p class="meta">Downforce-to-grip mapping, G-g diagrams, corner radius estimation from telemetry</p>
+    </div>
+
+    <section class="section">
+      <h2>How Downforce Enables Cornering</h2>
+      <p>
+        The fundamental relationship between downforce and cornering speed comes from
+        the friction circle. The maximum lateral force a tire can generate is:
+      </p>
+      <div class="equation">
+        $$F_y = \mu (mg + C_L \cdot q \cdot A)$$
+      </div>
+      <p>
+        where $\mu$ is the tire-road friction coefficient, $m$ is the car mass,
+        $g$ is gravity, $C_L$ is the downforce coefficient, $q = \frac{1}{2}\rho v^2$
+        is dynamic pressure, and $A$ is frontal area. The cornering speed for a given
+        radius $R$ follows from $F_y = mv^2/R$.
+      </p>
+      <p>
+        At low speeds, grip is dominated by mechanical (mass-based) forces. As speed
+        increases, the aerodynamic component grows quadratically, more than doubling
+        the available grip at racing speeds.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>G-G Diagram -- Monaco 2024</h2>
+      <p>
+        The G-g diagram plots longitudinal acceleration (braking/throttle) against
+        lateral acceleration (cornering). The envelope shows the performance limits
+        of the car under combined loading.
+      </p>
+      <div class="figure">
+        <img src="assets/images/cornering_gg_diagram.png" alt="G-g diagram Monaco 2024">
+        <div class="caption">G-g diagram from Verstappen's fastest lap at Monaco 2024. Points are colored by speed (km/h). Dashed circles show constant g levels. The asymmetric distribution reflects Monaco's many right-hand turns with heavy braking zones.</div>
+      </div>
+      <p>
+        The G-g diagram reveals how the driver uses the available grip. Most points
+        fall inside the 2g circle, with braking peaks reaching 4g+ (aero + brakes
+        combined). The color gradient shows that higher speeds correlate with lower
+        lateral g (straights), while the highest lateral g occurs in medium-speed
+        corners.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Corner Radius from Telemetry</h2>
+      <p>
+        Corner radius is estimated from the relationship $R = v^2 / a_y$, where
+        lateral acceleration $a_y$ is computed from the GPS position gradient.
+      </p>
+      <div class="figure">
+        <img src="assets/images/cornering_speed_radius.png" alt="Corner radius vs speed">
+        <div class="caption">Estimated corner radius as a function of speed for each telemetry point at Monaco. Color shows lateral acceleration magnitude. Constant radius reference lines (dashed) show the expected speed for a given radius.</div>
+      </div>
+      <p>
+        Monaco's tight hairpins (R=10-30m) appear at low speeds, while the
+        swimming pool and Nouvelle chicane sections show medium-radius corners
+        (R=50-100m) at moderate speeds. The scatter reflects transient phases
+        (braking into corners, accelerating out) where the steady-state assumption
+        $R = v^2/a_y$ is less accurate.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Downforce Contribution to Grip</h2>
+      <p>
+        The grip envelope chart shows how much cornering speed comes from
+        mechanical grip alone vs the aero-enhanced total.
+      </p>
+      <div class="figure">
+        <img src="assets/images/cornering_grip_envelope.png" alt="Grip envelope">
+        <div class="caption">Left: Total lateral force breakdown. Right: Corner speed for R=50m with and without aero contribution. At 300 km/h, aero grip triples the available lateral force, raising corner speed by 60%+.</div>
+      </div>
+      <p>
+        At 100 km/h, downforce adds roughly 30% to cornering speed. At 300 km/h,
+        the aero contribution is dominant -- the car can corner at 200+ km/h that
+        would be impossible with mechanical grip alone. This quadratic scaling is
+        why modern F1 cars are so dependent on clean air: losing downforce in
+        traffic directly translates to lower corner speed.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Corner Classification</h2>
+      <p>
+        Corners are classified by entry speed into four categories. The lateral g
+        achieved in each category reveals how downforce affects grip across the
+        speed range.
+      </p>
+      <div class="figure">
+        <img src="assets/images/cornering_classification.png" alt="Corner classification">
+        <div class="caption">Average lateral g by corner type from Monaco telemetry. Bars show mean g, scatter shows individual cornering events. Higher-speed corners achieve higher g thanks to increased aero downforce.</div>
+      </div>
+      <p>
+        The trend shows increasing lateral g with corner speed category, directly
+        confirming the aerodynamic grip contribution. Hairpin corners (low speed)
+        rely primarily on mechanical grip and achieve lower peak g, while
+        medium-high speed corners benefit from significant aero downforce.
+      </p>
+    </section>
+
+    <section class="key-findings">
+      <h3>Key Findings</h3>
+      <ul>
+        <li><strong>Aero dominates at speed:</strong> At 300 km/h, aerodynamic grip is ~3x mechanical grip. Downforce is what makes modern F1 cornering speeds possible.</li>
+        <li><strong>Monaco's unique demands:</strong> Street circuit corners span R=10m hairpins to R=100m sweepers, requiring both mechanical and aero grip across the speed range.</li>
+        <li><strong>G-g envelope:</strong> Combined braking and cornering (trail braking) pushes the car toward the friction circle limits, with peaks exceeding 4g in braking.</li>
+        <li><strong>Speed-g correlation:</strong> Higher corner entry speeds produce higher lateral g (up to 3.5g+), driven entirely by aero downforce scaling with v^2.</li>
+        <li><strong>Grip margin:</strong> The gap between mechanical-only and aero-enhanced corner speed grows from ~10% at low speed to 60%+ at high speed.</li>
+      </ul>
+    </section>
+
+    <section class="limitations">
+      <h3>Limitations</h3>
+      <ul>
+        <li>Corner radius estimation from telemetry uses steady-state approximation ($R = v^2/a_y$) which is inaccurate during combined braking/cornering transients.</li>
+        <li>GPS position data at 1.5 Hz limits resolution of gradient-based lateral acceleration computation.</li>
+        <li>Tire friction coefficient $\mu=1.2$ is a representative value; real tire grip varies with temperature, compound, and track surface.</li>
+        <li>Monaco is a unique circuit; results do not generalize to all track types. High-speed circuits like Monza or Silverstone would show different distributions.</li>
+        <li>The grip envelope uses a constant radius R=50m for comparison; real corner radius varies continuously around the lap.</li>
+        <li>No suspension or tire deflection modeling -- the simple $R=v^2/a_y$ assumes a rigid vehicle.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>F1 Aerodynamics Analysis &middot; Mercedes-inspired dark theme</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false}
+        ]
+      });
+    });
+  </script>
+</body>
+</html>

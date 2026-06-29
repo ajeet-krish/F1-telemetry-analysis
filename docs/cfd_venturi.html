@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CFD Venturi -- F1 Aerodynamics</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">F1 Aerodynamics</div>
+    <nav class="site-nav">
+      <a href="index.html">Home</a>
+      <a href="theory.html">Theory</a>
+      <a href="downforce.html"    >Downforce</a>
+      <a href="ride_height.html">Ride Height</a>
+      <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
+      <a href="track_setups.html">Track Setups</a>
+      <a href="cornering.html">Cornering</a>
+      <a href="strategy.html">Strategy</a>
+      <a href="cfd_venturi.html" class="active">CFD Venturi</a>
+      <a href="implementation.html">Code</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="analysis-header">
+      <h1>CFD Venturi Tunnel</h1>
+      <p class="meta">SU2 RANS simulation of the floor venturi tunnel with moving ground wall</p>
+    </div>
+
+    <section class="section">
+      <h2>Venturi Ground Effect Simulation</h2>
+      <p>
+        The floor of an F1 car acts as a venturi tunnel between the car body
+        and the ground. This simulation uses SU2 CFD to solve the RANS
+        equations for a 2D venturi profile with a moving ground wall,
+        matching the real condition where the track surface moves relative
+        to the car.
+      </p>
+      <div class="equation">
+        $$\frac{\partial \bar{u}_i}{\partial x_i} = 0$$
+      </div>
+      <div class="equation">
+        $$\bar{u}_j \frac{\partial \bar{u}_i}{\partial x_j} = -\frac{1}{\rho}
+        \frac{\partial \bar{p}}{\partial x_i} + \nu \frac{\partial^2
+        \bar{u}_i}{\partial x_j \partial x_j} -
+        \frac{\partial \overline{u_i' u_j'}}{\partial x_j}$$
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Simulation Setup</h2>
+      <p>
+        The 2D venturi domain consists of:
+      </p>
+      <ul>
+        <li><strong>Moving bottom wall:</strong> Ground plane moving at vehicle speed</li>
+        <li><strong>Profiled top wall:</strong> Venturi-shaped floor with diffuser exit</li>
+        <li><strong>Inlet:</strong> Uniform velocity inlet (40-80 m/s)</li>
+        <li><strong>Outlet:</strong> Pressure outlet at ambient conditions</li>
+        <li><strong>Symmetry:</strong> Far-field top boundary</li>
+      </ul>
+      <p>
+        The simulation uses the SU2 RANS solver with the SST k-omega
+        turbulence model. The mesh is a structured quadrilateral grid with
+        refined boundary layers (y+ &lt; 1).
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Expected Results</h2>
+      <p>
+        When complete, this page will show:
+      </p>
+      <ul>
+        <li>Pressure coefficient (Cp) profiles along the venturi floor</li>
+        <li>Velocity field and streamline visualization</li>
+        <li>Diffuser angle sweep (10-20 degrees) effect on downforce</li>
+        <li>Ride height sensitivity (25-100 mm) of C_L and C_D</li>
+        <li>Velocity sweep (40-80 m/s) and Reynolds number scaling</li>
+        <li>Validation against published venturi/floor CFD data</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>Setup Script</h2>
+      <p>
+        The SU2 configuration and mesh generation are handled by:
+      </p>
+      <div class="code-block">
+        <pre><code class="language-python">from src.cfd.su2_runner import SU2Config, SU2Solver
+
+config = SU2Config(
+    mesh_file="venturi_2d.su2",
+    physics="inc_rans",
+    reynolds=2.5e6,
+    mach=0.1,
+    moving_wall=True,
+    wall_name="ground",
+)
+solver = SU2Solver(config)
+solver.run()
+results = solver.parse_history()</code></pre>
+      </div>
+    </section>
+
+    <section class="limitations">
+      <h3>Status</h3>
+      <ul>
+        <li>SU2 v8.4 binary available at <code>/Users/ajeet/SU2_CFD/bin/SU2_CFD</code></li>
+        <li>Mesh generation utilities adapted from Soccer CFD reference project</li>
+        <li>Simulation results pending (requires ~30-60 min per run)</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>F1 Aerodynamics Analysis &middot; Mercedes-inspired dark theme</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false}
+        ]
+      });
+    });
+  </script>
+</body>
+</html>

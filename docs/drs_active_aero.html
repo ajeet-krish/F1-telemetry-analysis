@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DRS &amp; Active Aero -- F1 Aerodynamics</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">F1 Aerodynamics</div>
+    <nav class="site-nav">
+      <a href="index.html">Home</a>
+      <a href="theory.html">Theory</a>
+      <a href="downforce.html"    >Downforce</a>
+      <a href="ride_height.html">Ride Height</a>
+      <a href="drs_active_aero.html" class="active">DRS &amp; Active Aero</a>
+      <a href="track_setups.html">Track Setups</a>
+      <a href="cornering.html">Cornering</a>
+      <a href="strategy.html">Strategy</a>
+      <a href="cfd_venturi.html">CFD Venturi</a>
+      <a href="implementation.html">Code</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="analysis-header">
+      <h1>DRS &amp; Active Aero</h1>
+      <p class="meta">Drag reduction, overtaking deltas, 2022 vs 2026 regulation comparison</p>
+    </div>
+
+    <section class="section">
+      <h2>How DRS Works</h2>
+      <p>
+        The Drag Reduction System (DRS) opens the rear wing's main flap to reduce
+        drag on straights. When closed, the rear wing operates at high incidence
+        for maximum downforce. When opened, the flap angle reduces, decreasing
+        both downforce and drag.
+      </p>
+      <p>
+        The drag reduction from DRS is modeled as:
+      </p>
+      <div class="equation">
+        $$C_{D,DRS} = C_{D,closed} \cdot (1 - R_{DRS})$$
+      </div>
+      <div class="equation">
+        $$C_{L,DRS} = C_{L,closed} \cdot (1 - L_{DRS})$$
+      </div>
+      <p>
+        where \(R_{DRS} \approx 0.70\) is the drag reduction fraction and
+        \(L_{DRS} \approx 0.40\) is the downforce loss fraction. The 2026
+        regulations replace DRS with active aero systems that provide multiple
+        operating modes.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>DRS Drag Polar</h2>
+      <p>
+        The drag polar shifts when DRS opens. The operating point moves to
+        a lower C<sub>L</sub> (less downforce) and lower C<sub>D</sub> (less drag)
+        region of the polar curve.
+      </p>
+      <div class="figure">
+        <img src="assets/images/drs_drag_polar.png" alt="DRS drag polar comparison">
+        <div class="caption">Drag polar comparison: DRS closed (teal) vs open (red). Each point corresponds to a speed; annotated points show selected speeds in km/h.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Downforce and Drag Delta</h2>
+      <div class="figure-grid">
+        <div class="figure">
+          <img src="assets/images/drs_speed_delta.png" alt="DRS downforce and drag delta">
+          <div class="caption">Downforce loss (left) and drag reduction (right) when DRS opens. The tradeoff is clear: ~40% less downforce for ~70% less drag from the rear wing.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Overtaking Advantage</h2>
+      <p>
+        The trailing car with DRS open experiences less drag than the leading
+        car, creating a thrust surplus that accelerates it forward. This is the
+        fundamental mechanism that enables overtaking in modern F1.
+      </p>
+      <div class="figure">
+        <img src="assets/images/drs_overtaking_advantage.png" alt="Overtaking acceleration advantage">
+        <div class="caption">Net acceleration advantage of the trailing car (DRS open) over the leading car (DRS closed) as a function of speed. The advantage grows with speed due to the quadratic drag scaling.</div>
+      </div>
+      <p>
+        This model assumes equal engine power -- the advantage shown is purely
+        aerodynamic. In reality, the trailing car also benefits from slipstream
+        (reduced pressure drag in the leader's wake), adding another
+        10--20% to the advantage.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Telemetry Trace -- Monaco 2024</h2>
+      <p>
+        Real telemetry data from Verstappen's fastest lap at Monaco 2024 shows
+        DRS activation zones. Monaco has a short DRS zone on the start-finish
+        straight, giving only a brief overtaking window.
+      </p>
+      <div class="figure">
+        <img src="assets/images/drs_telemetry_trace.png" alt="Telemetry trace with DRS zones">
+        <div class="caption">VER fastest lap at Monaco 2024. DRS activation (shaded teal) occurs on the main straight where speed exceeds 100 km/h. The throttle trace shows full application before braking zones.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>2022 DRS vs 2026 Active Aero</h2>
+      <p>
+        The 2026 regulations introduce active front and rear aerodynamics with
+        three distinct modes:
+      </p>
+      <ul>
+        <li><strong>Corner mode:</strong> Maximum downforce configuration for cornering grip</li>
+        <li><strong>Straight mode:</strong> Low-drag configuration (always active on straights, not just in detection zones)</li>
+        <li><strong>Z-mode:</strong> Overtaking boost: minimum drag + maximum electric power deployment</li>
+      </ul>
+      <div class="figure">
+        <img src="assets/images/drs_2022_vs_2026.png" alt="2022 vs 2026 regulation comparison">
+        <div class="caption">Comparison of 2022 DRS system vs 2026 active aero across downforce (left) and drag (right). The 2026 regulations reduce overall downforce to reduce tire wake and improve following performance.</div>
+      </div>
+      <p>
+        The 2026 regulations aim to reduce the "dirty air" problem by cutting
+        total downforce by ~30% and shifting the generation toward the floor
+        (less sensitive to wake). The active aero system allows teams to optimize
+        the drag-downforce tradeoff on a per-corner basis rather than the
+        current DRS-zone-only approach.
+      </p>
+    </section>
+
+    <section class="key-findings">
+      <h3>Key Findings</h3>
+      <ul>
+        <li><strong>DRS efficiency:</strong> ~70% drag reduction from the rear wing comes at a cost of ~40% downforce loss. The net L/D penalty is ~40%, making DRS only beneficial on straights.</li>
+        <li><strong>Overtaking advantage:</strong> Pure aero advantage of 0.7--1.5 m/s^2 at racing speeds, amplified by slipstream effects in practice.</li>
+        <li><strong>Speed-dependent:</strong> DRS advantage scales with v^2, making it increasingly effective at higher speeds.</li>
+        <li><strong>2026 shift:</strong> Active aero provides continuous optimization rather than binary on/off, with Z-mode delivering a targeted overtaking boost.</li>
+        <li><strong>Monaco constraint:</strong> Short DRS zone and low speeds limit DRS effectiveness on street circuits, making track position critical.</li>
+      </ul>
+    </section>
+
+    <section class="limitations">
+      <h3>Limitations</h3>
+      <ul>
+        <li>Engine power is modeled as equal for both cars -- real overtaking involves power unit deployment and energy recovery differences.</li>
+        <li>Slipstream draft effect (pressure reduction in the leader's wake) is not modeled separately from DRS.</li>
+        <li>2026 active aero model is based on proposed regulation targets, not actual team data or finalized rules.</li>
+        <li>Tire temperature and degradation effects of following another car are not included.</li>
+        <li>The Z-mode battery deployment strategy is simplified -- real energy management is highly complex.</li>
+        <li>Monaco telemetry is circuit-specific; DRS effectiveness varies significantly by track.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>F1 Aerodynamics Analysis &middot; Mercedes-inspired dark theme</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false}
+        ]
+      });
+    });
+  </script>
+</body>
+</html>

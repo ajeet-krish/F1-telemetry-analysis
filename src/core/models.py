@@ -288,7 +288,7 @@ class Floor:
 
         Args:
             ride_height: Ride height (meters)
-            velocity_ms: Velocity (m/s) — affects boundary layer
+            velocity_ms: Velocity (m/s) -- affects boundary layer
 
         Returns:
             Lift coefficient (negative = downforce)

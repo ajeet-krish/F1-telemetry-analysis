@@ -2,9 +2,10 @@
 Nav bar sync utility for standalone HTML pages.
 
 Propagates nav bar HTML from template source to all pages.
+
 Usage:
-    uv run python -m src.build_site          # sync nav
-    uv run python -m src.build_site --check  # dry run
+    uv run python -m runners.build_site          # sync nav
+    uv run python -m runners.build_site --check  # dry run
 """
 
 import re
