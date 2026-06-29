@@ -1,14 +1,14 @@
 [project]
 name = "f1-telemetry-dashboard"
 version = "0.1.0"
-description = "Add your description here"
+description = "F1 aerodynamics analysis with telemetry correlation, analytical models, and SU2 CFD validation"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "fastf1>=3.0.2",
+    "fastf1>=3.8.0",
     "ipykernel>=7.2.0",
     "matplotlib>=3.10.8",
-    "numpy>=2.4.4",
-    "pandas>=3.0.2",
+    "numpy>=1.26",
+    "pandas>=2.1.1",
     "scipy>=1.17.1",
 ]

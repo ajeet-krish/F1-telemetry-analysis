@@ -1,0 +1,24 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.ruff_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv
+
+# IDE
+.idea/
+
+# OS
+.DS_Store
+
+# SU2 simulation output
+su2_runs/**/output_*/
+su2_runs/**/*.vtu
+su2_runs/**/*.dat
+su2_runs/**/*.csv

@@ -1,0 +1,344 @@
+/* Mercedes-themed F1 dark style for F1 Aerodynamics Analysis */
+
+:root {
+  --bg: #1a1a1a;
+  --card: #2a2a2a;
+  --accent: #00d2be;
+  --accent-hover: #00f0d8;
+  --secondary: #d4d4d4;
+  --text: #ffffff;
+  --text-muted: #888888;
+  --border: #3a3a3a;
+  --red: #e94560;
+  --amber: #ffb347;
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+/* Layout */
+.site-header {
+  background: var(--card);
+  border-bottom: 2px solid var(--accent);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.site-header .logo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.site-nav a {
+  color: var(--secondary);
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.site-nav a:hover,
+.site-nav a.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  text-decoration: none;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Hero section */
+.hero {
+  text-align: center;
+  padding: 4rem 2rem 3rem;
+  background: linear-gradient(180deg, #1a1a1a 0%, #0d2a28 50%, #1a1a1a 100%);
+  border-bottom: 1px solid var(--border);
+}
+
+.hero h1 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.hero .subtitle {
+  font-size: 1.15rem;
+  color: var(--secondary);
+  max-width: 700px;
+  margin: 0 auto 1.5rem;
+}
+
+/* Cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.card h3 {
+  color: var(--accent);
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  color: var(--secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.card .tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  background: rgba(0, 210, 190, 0.15);
+  color: var(--accent);
+  margin-top: 0.5rem;
+}
+
+/* Analysis pages */
+.analysis-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.analysis-header h1 {
+  font-size: 2rem;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.analysis-header .meta {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.figure {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.figure img {
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.figure .caption {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.figure-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.figure-grid .figure img {
+  width: 100%;
+}
+
+/* Content sections */
+.section {
+  margin: 2.5rem 0;
+}
+
+.section h2 {
+  font-size: 1.6rem;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.section h3 {
+  font-size: 1.2rem;
+  color: var(--text);
+  margin: 1.25rem 0 0.5rem;
+}
+
+.section p {
+  margin-bottom: 1rem;
+  color: var(--secondary);
+}
+
+.section ul, .section ol {
+  margin: 0.75rem 0 0.75rem 1.5rem;
+  color: var(--secondary);
+}
+
+.section li {
+  margin-bottom: 0.3rem;
+}
+
+/* Equations */
+.equation {
+  text-align: center;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(0, 210, 190, 0.05);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+/* Key findings box */
+.key-findings {
+  background: rgba(0, 210, 190, 0.08);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.key-findings h3 {
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.key-findings li {
+  margin-bottom: 0.5rem;
+}
+
+/* Limitations box */
+.limitations {
+  background: rgba(233, 69, 96, 0.08);
+  border: 1px solid var(--red);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.limitations h3 {
+  color: var(--red);
+  margin-bottom: 0.75rem;
+}
+
+/* Footer */
+.site-footer {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border);
+  margin-top: 3rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .container {
+    padding: 1rem;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .figure-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .site-nav {
+    gap: 0.75rem;
+  }
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+th, td {
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  color: var(--accent);
+  font-weight: 600;
+  background: var(--card);
+}
+
+td {
+  color: var(--secondary);
+}
+
+tr:hover td {
+  background: rgba(0, 210, 190, 0.03);
+}
+
+/* Code blocks (Prism.js override) */
+code[class*="language-"],
+pre[class*="language-"] {
+  font-size: 0.85rem;
+}
