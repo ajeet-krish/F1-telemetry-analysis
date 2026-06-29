@@ -54,10 +54,8 @@
     </section>
 
     <section class="section">
-      <h2>Simulation Setup</h2>
-      <p>
-        The 2D venturi domain consists of:
-      </p>
+      <h2>Simulation Setup &amp; Mesh</h2>
+      <p>The 2D venturi domain consists of:</p>
       <ul>
         <li><strong>Moving bottom wall:</strong> Ground plane moving at vehicle speed</li>
         <li><strong>Profiled top wall:</strong> Venturi-shaped floor with diffuser exit</li>
@@ -70,51 +68,359 @@
         turbulence model. The mesh is a structured quadrilateral grid with
         refined boundary layers (y+ &lt; 1).
       </p>
+      <figure>
+        <img src="assets/images/cfd_venturi_mesh_preview.png" alt="Venturi floor profiles" loading="lazy">
+        <figcaption>Venturi floor profile geometry at different ride heights and diffuser angles</figcaption>
+      </figure>
     </section>
 
+    <!-- ====== CASE 1: REFERENCE CASE ====== -->
     <section class="section">
-      <h2>Expected Results</h2>
+      <h2>Case 1: Reference Venturi (h=50 mm, &alpha;=17&deg;, V=60 m/s)</h2>
       <p>
-        When complete, this page will show:
+        The reference simulation at regulation-maximum diffuser angle
+        (17&deg;), 50 mm ride height, and 60 m/s 
+        (216 km/h -- a typical medium-speed corner). This is the baseline
+        for all parametric comparisons below.
       </p>
-      <ul>
-        <li>Pressure coefficient (Cp) profiles along the venturi floor</li>
-        <li>Velocity field and streamline visualization</li>
-        <li>Diffuser angle sweep (10-20 degrees) effect on downforce</li>
-        <li>Ride height sensitivity (25-100 mm) of C_L and C_D</li>
-        <li>Velocity sweep (40-80 m/s) and Reynolds number scaling</li>
-        <li>Validation against published venturi/floor CFD data</li>
-      </ul>
-    </section>
 
-    <section class="section">
-      <h2>Setup Script</h2>
-      <p>
-        The SU2 configuration and mesh generation are handled by:
-      </p>
-      <div class="code-block">
-        <pre><code class="language-python">from src.cfd.su2_runner import SU2Config, SU2Solver
+      <h3>Flow Field Visualizations</h3>
+      <div class="gallery">
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Velocity Magnitude Contour</span>
+            <span class="placeholder-hint">case1_velocity_contour.png</span>
+          </div>
+          <figcaption>Full-domain flood contour of velocity magnitude. The flow accelerates through the throat (red) and decelerates in the diffuser (blue). Use a blue-to-red colormap.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Pressure Coefficient Cp Contour</span>
+            <span class="placeholder-hint">case1_cp_contour.png</span>
+          </div>
+          <figcaption>Cp field across the domain. The low-pressure zone at the throat (blue) is the source of downforce; pressure recovers through the diffuser.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Streamlines Colored by Velocity</span>
+            <span class="placeholder-hint">case1_streamlines.png</span>
+          </div>
+          <figcaption>Streamtraces seeded from a rake at the inlet. Reveals flow attachment through the diffuser -- check for any separation at the diffuser ramp.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Vorticity Magnitude Contour</span>
+            <span class="placeholder-hint">case1_vorticity.png</span>
+          </div>
+          <figcaption>Vorticity magnitude highlights boundary layer development along both walls and the shear layer above the diffuser ramp. Use Gradient of Unstructured Dataset + curl filter.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Turbulent Kinetic Energy k</span>
+            <span class="placeholder-hint">case1_tke.png</span>
+          </div>
+          <figcaption>Turbulent kinetic energy contour. Identifies regions of high turbulence production in the boundary layers and any diffuser shear layer.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Mach Number Contour</span>
+            <span class="placeholder-hint">case1_mach.png</span>
+          </div>
+          <figcaption>Local Mach number. At 60 m/s freestream, throat velocity may push beyond Ma=0.3 where compressibility effects become non-negligible.</figcaption>
+        </figure>
+      </div>
 
-config = SU2Config(
-    mesh_file="venturi_2d.su2",
-    physics="inc_rans",
-    reynolds=2.5e6,
-    mach=0.1,
-    moving_wall=True,
-    wall_name="ground",
-)
-solver = SU2Solver(config)
-solver.run()
-results = solver.parse_history()</code></pre>
+      <h3>Wall Profile Extractions</h3>
+      <div class="gallery">
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Cp Profile Along Floor &amp; Ground</span>
+            <span class="placeholder-hint">case1_cp_profile.png</span>
+          </div>
+          <figcaption>Line plot of Cp extracted along the top wall (floor) and bottom wall (ground) via <em>Plot Over Line</em>. The sharp Cp drop at the throat (x &asymp; 0.9-1.7 m) drives downforce; the diffuser recovers pressure toward ambient.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Wall y+ Distribution</span>
+            <span class="placeholder-hint">case1_yplus.png</span>
+          </div>
+          <figcaption>y+ along both walls. Target is y+ &lt; 1 everywhere for the SST model to resolve the viscous sublayer. Use Plot Over Line + extract field Yplus.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Wall Shear Stress Along Floor</span>
+            <span class="placeholder-hint">case1_wall_shear.png</span>
+          </div>
+          <figcaption>Wall shear stress magnitude along the floor profile. A drop to zero or negative values would indicate flow separation.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Velocity Profiles at Selected x-stations</span>
+            <span class="placeholder-hint">case1_velocity_profiles.png</span>
+          </div>
+          <figcaption>Boundary layer velocity profiles extracted at the inlet, throat, mid-diffuser, and outlet. Shows the boundary layer growth and velocity redistribution through the venturi. Use Plot Over Line in the y-direction at each station, then overlay in matplotlib.</figcaption>
+        </figure>
+      </div>
+
+      <h3>Convergence</h3>
+      <div class="gallery">
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Residual Convergence History</span>
+            <span class="placeholder-hint">case1_convergence.png</span>
+          </div>
+          <figcaption>RMS residuals (pressure, momentum, turbulence) vs iteration from <code>history.csv</code>. Expect 4-5 orders of magnitude drop for a converged solution. Plot directly from CSV with matplotlib or load into Paraview.</figcaption>
+        </figure>
       </div>
     </section>
 
+    <!-- ====== CASE 2: RIDE HEIGHT SWEEP ====== -->
+    <section class="section">
+      <h2>Case 2: Ride Height Sweep (h=35-80 mm)</h2>
+      <p>
+        Sweeping the ride height from 35 mm to 80 mm at fixed diffuser
+        angle (17&deg;) and velocity (60 m/s). As the floor gets closer to
+        the ground, the venturi accelerates more air through the gap,
+        increasing downforce -- but also increasing sensitivity to pitch
+        (the porpoising mechanism).
+      </p>
+      <figure>
+        <img src="assets/images/cfd_venturi_ride_height_sweep.png" alt="Ride height sweep results" loading="lazy">
+        <figcaption>Downforce (C<sub>L</sub>) and drag (C<sub>D</sub>) vs ride height from SU2 RANS at 17&deg; diffuser, 60 m/s</figcaption>
+      </figure>
+
+      <h3>Comparison Visualizations</h3>
+      <p>
+        Extract the same contour view for two ride heights (e.g., h=35 mm
+        and h=80 mm) and place them side by side to highlight the ground
+        effect.
+      </p>
+      <div class="gallery">
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Velocity Contour: Low vs High Ride Height</span>
+            <span class="placeholder-hint">case2_velocity_comparison.png</span>
+          </div>
+          <figcaption>Side-by-side velocity contours at h=35 mm (left) and h=80 mm (right). The throat accelerates more aggressively at low ride height, producing higher suction.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Cp Profile Overlay: All Ride Heights</span>
+            <span class="placeholder-hint">case2_cp_overlay.png</span>
+          </div>
+          <figcaption>Overlay Cp profiles along the floor for all 4 ride heights. Shows the increasing pressure drop at the throat as ride height decreases. Extract each case via Plot Over Line, export CSV, and overlay in matplotlib.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Streamlines: Low vs High Ride Height</span>
+            <span class="placeholder-hint">case2_streamlines_comparison.png</span>
+          </div>
+          <figcaption>Streamlines at h=35 mm vs h=80 mm. Lower ride height produces stronger acceleration and may show earlier diffuser separation.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Wall Shear Overlay: All Ride Heights</span>
+            <span class="placeholder-hint">case2_wall_shear_overlay.png</span>
+          </div>
+          <figcaption>Wall shear stress along the floor for each ride height. A dip near zero flags impending separation. Overlay all cases from CSV exports.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ====== CASE 3: DIFFUSER ANGLE SWEEP ====== -->
+    <section class="section">
+      <h2>Case 3: Diffuser Angle Sweep (&alpha;=10-20&deg;)</h2>
+      <p>
+        The diffuser angle controls the rate of pressure recovery and the
+        risk of flow separation. The 2026 regulations cap the diffuser
+        angle at 17&deg;. Sweeping from 10&deg; to 20&deg; at fixed
+        ride height (50 mm) and velocity (60 m/s) shows the trade-off:
+        steeper angles generate more downforce but risk separation.
+      </p>
+      <p class="meta">Simulation results pending -- run <code>uv run python -m runners.cfd_venturi</code> without --quick</p>
+
+      <div class="gallery">
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Diffuser Angle Sweep: CL vs Angle</span>
+            <span class="placeholder-hint">case3_angle_sweep.png</span>
+          </div>
+          <figcaption>C<sub>L</sub> vs diffuser angle (auto-generated by the analysis pipeline after SU2 runs). Expect a monotonic increase in downforce with angle until separation onset.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Streamlines: 10&deg; vs 20&deg; Diffuser</span>
+            <span class="placeholder-hint">case3_streamlines_comparison.png</span>
+          </div>
+          <figcaption>Side-by-side streamlines at 10&deg; (attached) and 20&deg; (separated). The separation bubble at the diffuser ramp kills pressure recovery and reduces downforce.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Cp Profile Overlay: All Angles</span>
+            <span class="placeholder-hint">case3_cp_overlay.png</span>
+          </div>
+          <figcaption>Overlay Cp profiles for 10, 14, 17, and 20&deg;. Steeper angles produce a larger Cp drop at the throat but also a less complete pressure recovery downstream.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Velocity Contour: Separated vs Attached</span>
+            <span class="placeholder-hint">case3_velocity_separation.png</span>
+          </div>
+          <figcaption>Velocity contour at a high diffuser angle (20&deg;) showing the low-velocity separation bubble on the diffuser ramp. Compare with the attached case at 10&deg;.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ====== CASE 4: VELOCITY / RE SWEEP ====== -->
+    <section class="section">
+      <h2>Case 4: Velocity Sweep (V=40-80 m/s)</h2>
+      <p>
+        Sweeping the freestream velocity from 40 m/s (144 km/h) to 80 m/s
+        (288 km/h) at fixed ride height (50 mm) and diffuser angle
+        (17&deg;). Downforce scales with $V^2$ in the incompressible
+        regime, so the C<sub>L</sub> should remain nearly constant while
+        the absolute downforce force grows quadratically.
+      </p>
+      <p class="meta">Simulation results pending -- run <code>uv run python -m runners.cfd_venturi</code> without --quick</p>
+
+      <div class="gallery">
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Velocity Sweep: CL and CD vs Velocity</span>
+            <span class="placeholder-hint">case4_velocity_sweep.png</span>
+          </div>
+          <figcaption>C<sub>L</sub> and C<sub>D</sub> vs freestream velocity (auto-generated). For incompressible flow these should be nearly constant; any drift indicates Re-number effects on the boundary layer.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Cp Profile Overlay: 40 vs 80 m/s</span>
+            <span class="placeholder-hint">case4_cp_overlay.png</span>
+          </div>
+          <figcaption>Cp profiles at 40 and 80 m/s. In incompressible flow the Cp distributions should collapse; differences reveal compressibility or Re effects.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="placeholder-box">
+            <span class="placeholder-label">Velocity Contour: 40 vs 80 m/s</span>
+            <span class="placeholder-hint">case4_velocity_comparison.png</span>
+          </div>
+          <figcaption>Side-by-side velocity contours. The flow pattern should be geometrically similar; any visible difference suggests Re-number dependence of separation.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ====== PARAVIEW WORKFLOW ====== -->
+    <section class="section">
+      <h2>Paraview Extraction Workflow</h2>
+      <p>Open <code>vol_solution.vtu</code> from <code>su2_runs/results/&lt;case&gt;/</code> in Paraview.</p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Visualization</th>
+            <th>Paraview Filter / Steps</th>
+            <th>Field</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Velocity contour</td>
+            <td>Select <code>Velocity</code> field, color by magnitude</td>
+            <td><code>Velocity</code></td>
+          </tr>
+          <tr>
+            <td>Cp contour</td>
+            <td>Calculator: <code>Cp = (Pressure - 101325) / (0.5 * 1.225 * V_inf^2)</code></td>
+            <td><code>Pressure</code></td>
+          </tr>
+          <tr>
+            <td>Streamlines</td>
+            <td>Stream Tracer with Custom Source, seed rake at inlet</td>
+            <td><code>Velocity</code></td>
+          </tr>
+          <tr>
+            <td>Wall profiles</td>
+            <td>Plot Over Line along wall; save CSV, replot in matplotlib</td>
+            <td><code>Pressure</code>, <code>Yplus</code></td>
+          </tr>
+          <tr>
+            <td>Vorticity</td>
+            <td>Gradient of Unstructured Dataset &rarr; Calculator: <code>curl(Velocity)</code></td>
+            <td><code>Velocity</code></td>
+          </tr>
+          <tr>
+            <td>Wall shear</td>
+            <td>Extract Surface (walls) &rarr; Gradient of Velocity</td>
+            <td><code>Velocity</code></td>
+          </tr>
+          <tr>
+            <td>Velocity profiles</td>
+            <td>Plot Over Line (y-direction) at x-stations; overlay in matplotlib</td>
+            <td><code>Velocity</code></td>
+          </tr>
+          <tr>
+            <td>Convergence</td>
+            <td>Plot <code>history.csv</code> columns directly (matplotlib or Excel)</td>
+            <td>CSV columns</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        For styled publication-quality plots (Mercedes theme), export CSV
+        from Paraview and replot with <code>src/core/style.py</code> in a
+        Jupyter notebook or standalone script.
+      </p>
+    </section>
+
+    <!-- ====== CODE ====== -->
+    <section class="section">
+      <h2>Code</h2>
+      <div class="code-block">
+        <pre><code class="language-python">from src.cfd.su2_runner import SU2Config, SU2Solver, MeshGenerator
+
+# Generate structured quad mesh
+mesh = MeshGenerator.venturi_2d(
+    ride_height=0.05,
+    diffuser_angle=17.0,
+    n_x=200, n_y=80,
+)
+
+# Configure SU2 RANS solver
+config = SU2Config(
+    reynolds_number=203_000,
+    reynolds_length=0.05,
+    solver="INC_RANS",
+    turbulence_model="SST",
+    inc_velocity_init=(60.0, 0.0, 0.0),
+    cfl_number=0.5,
+    iterations=2000,
+    marker_walls=("ground", "floor"),
+    marker_inlets=("inlet",),
+    marker_outlets=("outlet",),
+    marker_moving=("ground",),
+    moving_wall=True,
+    inc_inlet_type="PRESSURE_INLET",
+)
+config.write("venturi.cfg")
+
+# Run solver
+solver = SU2Solver()
+result = solver.run("venturi.cfg", "venturi.su2")
+print(f"CL = {result.cl:.2f}, CD = {result.cd:.4f}")</code></pre>
+      </div>
+    </section>
+
+    <!-- ====== STATUS ====== -->
     <section class="limitations">
       <h3>Status</h3>
       <ul>
-        <li>SU2 v8.4 binary available at <code>/Users/ajeet/SU2_CFD/bin/SU2_CFD</code></li>
-        <li>Mesh generation utilities adapted from Soccer CFD reference project</li>
-        <li>Simulation results pending (requires ~30-60 min per run)</li>
+        <li>SU2 v8.4 binary (Harrier) at <code>/Users/ajeet/SU2_CFD/bin/SU2_CFD</code></li>
+        <li>Mesh generation: structured quads via gmsh, moving ground + diffuser profile</li>
+        <li>Solver: INC_RANS SST with PRESSURE_INLET, moving wall with SURFACE_TRANSLATION_RATE</li>
+        <li>Case 1 (Reference): Full-res run completed, VTU solution available</li>
+        <li>Case 2 (Ride height): 4-point sweep completed, JSON data + plots generated</li>
+        <li>Case 3 (Diffuser angle): Pending -- run <code>uv run python -m runners.cfd_venturi</code></li>
+        <li>Case 4 (Velocity): Pending -- run <code>uv run python -m runners.cfd_venturi</code></li>
+        <li>CL values require scaling calibration; relative trends are physically consistent</li>
+        <li>Replace placeholder divs with actual screenshots from Paraview</li>
       </ul>
     </section>
   </main>

@@ -16,4 +16,12 @@ wheels/
 
 # OS
 .DS_Store
+
+# Cache and temp
+uv.lock
+
+# SU2 CFD runs (large binary artifacts)
+su2_runs/
+
+# Project instructions (not for the site)
 AGENTS.md

@@ -1,0 +1,347 @@
+{
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/runners/__init__.py": {
+    "mtime": 1782765266.4824824,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/runners/all.py": {
+    "mtime": 1782765277.2883554,
+    "ast_hash": "b1e49477bdc771c4861eea5eb5513fd3",
+    "semantic_hash": "b1e49477bdc771c4861eea5eb5513fd3"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/runners/build_site.py": {
+    "mtime": 1782765276.0216198,
+    "ast_hash": "6d1420e1cdf26433c76a14fc6220c832",
+    "semantic_hash": "6d1420e1cdf26433c76a14fc6220c832"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/runners/cfd_venturi.py": {
+    "mtime": 1782766482.889114,
+    "ast_hash": "91d4f52d123e433af35d00241306148c",
+    "semantic_hash": "91d4f52d123e433af35d00241306148c"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/runners/cornering.py": {
+    "mtime": 1782765269.2317777,
+    "ast_hash": "ca179827d5c1c506015099b8a2fe8022",
+    "semantic_hash": "ca179827d5c1c506015099b8a2fe8022"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/runners/downforce.py": {
+    "mtime": 1782765267.1008825,
+    "ast_hash": "a8bb67750fa405874f3e81bb807d9c66",
+    "semantic_hash": "a8bb67750fa405874f3e81bb807d9c66"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/runners/drs.py": {
+    "mtime": 1782765268.1592174,
+    "ast_hash": "a171a0abd860492aed04eb9a200ceed1",
+    "semantic_hash": "a171a0abd860492aed04eb9a200ceed1"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/runners/ride_height.py": {
+    "mtime": 1782765267.6345308,
+    "ast_hash": "ff5df57bab1c651178a7088bada0e642",
+    "semantic_hash": "ff5df57bab1c651178a7088bada0e642"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/runners/strategy.py": {
+    "mtime": 1782765269.7152913,
+    "ast_hash": "9e9290fa6a40d9f8be94b8aa70c227ce",
+    "semantic_hash": "9e9290fa6a40d9f8be94b8aa70c227ce"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/runners/track_setups.py": {
+    "mtime": 1782765268.6762075,
+    "ast_hash": "33cda0bae5a2da2b78acf339cb306f48",
+    "semantic_hash": "33cda0bae5a2da2b78acf339cb306f48"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/__init__.py": {
+    "mtime": 1775533457.8827305,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/analysis/__init__.py": {
+    "mtime": 1782762840.5354667,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/analysis/cornering.py": {
+    "mtime": 1782764522.6834903,
+    "ast_hash": "be50b6929e2aa3f5af439e9fdb1c47f1",
+    "semantic_hash": "be50b6929e2aa3f5af439e9fdb1c47f1"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/analysis/downforce.py": {
+    "mtime": 1782763363.1463428,
+    "ast_hash": "19774d9e45850d7a77f8f5a7472cb49f",
+    "semantic_hash": "19774d9e45850d7a77f8f5a7472cb49f"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/analysis/drs.py": {
+    "mtime": 1782764035.4326963,
+    "ast_hash": "d16078e76c14b68e38eb75ddae2dd37c",
+    "semantic_hash": "d16078e76c14b68e38eb75ddae2dd37c"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/analysis/ride_height.py": {
+    "mtime": 1782763952.8563702,
+    "ast_hash": "0b05da4c1533ea90bf48b20eced9d44a",
+    "semantic_hash": "0b05da4c1533ea90bf48b20eced9d44a"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/analysis/strategy.py": {
+    "mtime": 1782764700.6174715,
+    "ast_hash": "77c04ed22ff1236ce8266306588874bc",
+    "semantic_hash": "77c04ed22ff1236ce8266306588874bc"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/analysis/track_setups.py": {
+    "mtime": 1782764338.7214663,
+    "ast_hash": "8bc4151d92eaff26b18a47fa9abc998b",
+    "semantic_hash": "8bc4151d92eaff26b18a47fa9abc998b"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/cfd/__init__.py": {
+    "mtime": 1782762840.8499074,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/cfd/su2_runner.py": {
+    "mtime": 1782766844.5562084,
+    "ast_hash": "937817f4236410805d12034e18c7f972",
+    "semantic_hash": "937817f4236410805d12034e18c7f972"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/cfd/validate.py": {
+    "mtime": 1782768392.6513193,
+    "ast_hash": "b50e6045d1c1b418e8871eb4e15888bc",
+    "semantic_hash": "b50e6045d1c1b418e8871eb4e15888bc"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/cfd/venturi.py": {
+    "mtime": 1782768377.7044046,
+    "ast_hash": "6bd76fa240da7ff29abf5a2fff904e77",
+    "semantic_hash": "6bd76fa240da7ff29abf5a2fff904e77"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/core/__init__.py": {
+    "mtime": 1782762814.3686106,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/core/models.py": {
+    "mtime": 1782764091.16795,
+    "ast_hash": "8bad4d6b9f06af100176472e77c7308d",
+    "semantic_hash": "8bad4d6b9f06af100176472e77c7308d"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/core/physics.py": {
+    "mtime": 1782762818.3773744,
+    "ast_hash": "cfe47e20a51c7d30bc6d7f066b840a43",
+    "semantic_hash": "cfe47e20a51c7d30bc6d7f066b840a43"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/core/style.py": {
+    "mtime": 1782762824.0310438,
+    "ast_hash": "029e5b4e8e8ed95b3079b8d966f5f0f7",
+    "semantic_hash": "029e5b4e8e8ed95b3079b8d966f5f0f7"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/src/core/telemetry.py": {
+    "mtime": 1782763170.532492,
+    "ast_hash": "5c3b8b9d27503afed0b9a88f32787f5a",
+    "semantic_hash": "5c3b8b9d27503afed0b9a88f32787f5a"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/README.md": {
+    "mtime": 1782769350.4407594,
+    "ast_hash": "d6d92bb8e53a6c187c5408dadd374a60",
+    "semantic_hash": "d6d92bb8e53a6c187c5408dadd374a60"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/cfd_venturi.html": {
+    "mtime": 1782769136.7370794,
+    "ast_hash": "f55f50d7bd96676ec3955bc84f9e6258",
+    "semantic_hash": "f55f50d7bd96676ec3955bc84f9e6258"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/cornering.html": {
+    "mtime": 1782765288.8400471,
+    "ast_hash": "bea40db739fe91048f4356e21b6c1ddc",
+    "semantic_hash": "bea40db739fe91048f4356e21b6c1ddc"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/downforce.html": {
+    "mtime": 1782765288.839588,
+    "ast_hash": "41d56b9530b0ae7dbbe9bd953da5bc77",
+    "semantic_hash": "41d56b9530b0ae7dbbe9bd953da5bc77"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/drs_active_aero.html": {
+    "mtime": 1782765288.8398237,
+    "ast_hash": "707df77f4642cd078573ee18b4f80083",
+    "semantic_hash": "707df77f4642cd078573ee18b4f80083"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/implementation.html": {
+    "mtime": 1782765288.8405051,
+    "ast_hash": "521d7278b5140819eb8810ed7221b33a",
+    "semantic_hash": "521d7278b5140819eb8810ed7221b33a"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/index.html": {
+    "mtime": 1782765288.8393033,
+    "ast_hash": "af36005fb56bdaae187a3611766d24b9",
+    "semantic_hash": "af36005fb56bdaae187a3611766d24b9"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/ride_height.html": {
+    "mtime": 1782765288.8397155,
+    "ast_hash": "52531b1c2f9ec29911ef12137001c095",
+    "semantic_hash": "52531b1c2f9ec29911ef12137001c095"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/strategy.html": {
+    "mtime": 1782765288.8402138,
+    "ast_hash": "9ea00b142f872ec9cf735ab1da7900b6",
+    "semantic_hash": "9ea00b142f872ec9cf735ab1da7900b6"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/theory.html": {
+    "mtime": 1782765288.8394637,
+    "ast_hash": "c5b10c100d5cfd1591b09369b7ff770e",
+    "semantic_hash": "c5b10c100d5cfd1591b09369b7ff770e"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/track_setups.html": {
+    "mtime": 1782765288.839935,
+    "ast_hash": "d1a6971538e2e722cf52065e9eb0c24b",
+    "semantic_hash": "d1a6971538e2e722cf52065e9eb0c24b"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/cfd_venturi_mesh_preview.png": {
+    "mtime": 1782768412.7926147,
+    "ast_hash": "65c136f6c2f04f0e4e8e6d1d4e32162b",
+    "semantic_hash": "65c136f6c2f04f0e4e8e6d1d4e32162b"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/cfd_venturi_ride_height_sweep.png": {
+    "mtime": 1782767001.8327281,
+    "ast_hash": "e37ba2c74a89a5837c13e5fba46bb122",
+    "semantic_hash": "e37ba2c74a89a5837c13e5fba46bb122"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/cornering_classification.png": {
+    "mtime": 1782765360.7758706,
+    "ast_hash": "4b709f29ac863114f6cf232d76914410",
+    "semantic_hash": "4b709f29ac863114f6cf232d76914410"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/cornering_gg_diagram.png": {
+    "mtime": 1782765358.3348072,
+    "ast_hash": "dd589bb57757512aa838823e7290f7dc",
+    "semantic_hash": "dd589bb57757512aa838823e7290f7dc"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/cornering_grip_envelope.png": {
+    "mtime": 1782765359.6457396,
+    "ast_hash": "5ef648c06845453474aad8a06e075e66",
+    "semantic_hash": "5ef648c06845453474aad8a06e075e66"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/cornering_speed_radius.png": {
+    "mtime": 1782765359.4625778,
+    "ast_hash": "d56506b5510b239d5aab0779db42d4fd",
+    "semantic_hash": "d56506b5510b239d5aab0779db42d4fd"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/downforce_aero_balance.png": {
+    "mtime": 1782765346.281774,
+    "ast_hash": "050326a52364d89beb02ac32261617f6",
+    "semantic_hash": "050326a52364d89beb02ac32261617f6"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/downforce_component_breakdown.png": {
+    "mtime": 1782765345.901639,
+    "ast_hash": "fe1e95100964697cd7b3d60ad3a1e1b0",
+    "semantic_hash": "fe1e95100964697cd7b3d60ad3a1e1b0"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/downforce_drag_polar.png": {
+    "mtime": 1782765346.0963757,
+    "ast_hash": "7174771ad92945e21d55bc7c9dd18158",
+    "semantic_hash": "7174771ad92945e21d55bc7c9dd18158"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/downforce_ld_ratio.png": {
+    "mtime": 1782765345.9726014,
+    "ast_hash": "8d20d92bc7d168573862c688dcf5b4fb",
+    "semantic_hash": "8d20d92bc7d168573862c688dcf5b4fb"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/downforce_vs_speed.png": {
+    "mtime": 1782765346.2113457,
+    "ast_hash": "bad30a9aecdb437bdcc1ce911d5cd194",
+    "semantic_hash": "bad30a9aecdb437bdcc1ce911d5cd194"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/drs_2022_vs_2026.png": {
+    "mtime": 1782765349.4078386,
+    "ast_hash": "df11d1f87e092cdf2ea773348966f000",
+    "semantic_hash": "df11d1f87e092cdf2ea773348966f000"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/drs_drag_polar.png": {
+    "mtime": 1782765346.9094193,
+    "ast_hash": "73457672a8d7594b463011cb4c24d39a",
+    "semantic_hash": "73457672a8d7594b463011cb4c24d39a"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/drs_overtaking_advantage.png": {
+    "mtime": 1782765347.1897793,
+    "ast_hash": "dc5e2e64d320e3667875143d0a79d8e8",
+    "semantic_hash": "dc5e2e64d320e3667875143d0a79d8e8"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/drs_speed_delta.png": {
+    "mtime": 1782765347.0660758,
+    "ast_hash": "1cadea7061bc23c2808a6a94723ff4e7",
+    "semantic_hash": "1cadea7061bc23c2808a6a94723ff4e7"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/drs_telemetry_trace.png": {
+    "mtime": 1782765349.2000356,
+    "ast_hash": "80254a20cca104c63a1c5a7aa3596646",
+    "semantic_hash": "80254a20cca104c63a1c5a7aa3596646"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/ride_height_aero_balance.png": {
+    "mtime": 1782765346.7274508,
+    "ast_hash": "ba7223bc442cb83a1641b2b7a718c632",
+    "semantic_hash": "ba7223bc442cb83a1641b2b7a718c632"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/ride_height_cl_contour.png": {
+    "mtime": 1782765346.5038228,
+    "ast_hash": "1ad04697f27bac220390953da83ebda6",
+    "semantic_hash": "1ad04697f27bac220390953da83ebda6"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/ride_height_downforce_curves.png": {
+    "mtime": 1782765346.3810906,
+    "ast_hash": "7b3a5de56cc0c95ef76cb04ed87b5bba",
+    "semantic_hash": "7b3a5de56cc0c95ef76cb04ed87b5bba"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/ride_height_porpoising_stability.png": {
+    "mtime": 1782765346.6335926,
+    "ast_hash": "4cfc315e253905560eb81aac8cbeaf03",
+    "semantic_hash": "4cfc315e253905560eb81aac8cbeaf03"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/ride_height_sensitivity.png": {
+    "mtime": 1782765346.821398,
+    "ast_hash": "23477ce1402cb58ff266a4d479eb9598",
+    "semantic_hash": "23477ce1402cb58ff266a4d479eb9598"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/strategy_fuel_correction.png": {
+    "mtime": 1782765360.9526908,
+    "ast_hash": "684f802cff2f3e9b72384992f0af0cb2",
+    "semantic_hash": "684f802cff2f3e9b72384992f0af0cb2"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/strategy_race_pace.png": {
+    "mtime": 1782765361.3707383,
+    "ast_hash": "81462a7f7b3daa85eafbb34f8a4d16c4",
+    "semantic_hash": "81462a7f7b3daa85eafbb34f8a4d16c4"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/strategy_tire_degradation.png": {
+    "mtime": 1782765361.198904,
+    "ast_hash": "85d2052c7c208127eb81e6974dc31f53",
+    "semantic_hash": "85d2052c7c208127eb81e6974dc31f53"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/strategy_tire_delta.png": {
+    "mtime": 1782765360.850418,
+    "ast_hash": "70f1be1174694548a1c65d56afd7a257",
+    "semantic_hash": "70f1be1174694548a1c65d56afd7a257"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/strategy_undercut.png": {
+    "mtime": 1782765361.1096323,
+    "ast_hash": "b762cdc965711a7ad5f8d6e095d24e92",
+    "semantic_hash": "b762cdc965711a7ad5f8d6e095d24e92"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/track_setups_aero_comparison.png": {
+    "mtime": 1782765355.3398552,
+    "ast_hash": "53fdc5e1250e5055302824f70ba4ffb6",
+    "semantic_hash": "53fdc5e1250e5055302824f70ba4ffb6"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/track_setups_gear_distribution.png": {
+    "mtime": 1782765353.2944155,
+    "ast_hash": "f3ad4ca0fa5fc1f65e88b88d5653dd8e",
+    "semantic_hash": "f3ad4ca0fa5fc1f65e88b88d5653dd8e"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/track_setups_sector_speeds.png": {
+    "mtime": 1782765355.1773026,
+    "ast_hash": "e16090f5d99f712d396fd59bf31103aa",
+    "semantic_hash": "e16090f5d99f712d396fd59bf31103aa"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/track_setups_speed_on_track.png": {
+    "mtime": 1782765351.3837342,
+    "ast_hash": "71a6656e15c3a6b820d287c43487e482",
+    "semantic_hash": "71a6656e15c3a6b820d287c43487e482"
+  },
+  "/Users/ajeet/Projects/F1_Telemetry_Dashboard/docs/assets/images/track_setups_speed_profile.png": {
+    "mtime": 1782765357.2368982,
+    "ast_hash": "d53f7fac2aad9e228b12da350eccfb40",
+    "semantic_hash": "d53f7fac2aad9e228b12da350eccfb40"
+  }
+}

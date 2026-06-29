@@ -1,6 +1,6 @@
 # F1 Aerodynamics Analysis
 
-An engineering analysis of Formula 1 car aerodynamics using real telemetry data, analytical models from first principles, and light SU2 CFD validation. Built as a modular Python pipeline with a standalone Mercedes-themed HTML portfolio site.
+An engineering analysis of Formula 1 car aerodynamics using real telemetry data, analytical models from first principles, and SU2 CFD validation. Built as a modular Python pipeline with a standalone Mercedes-themed HTML portfolio site.
 
 [Live Site](https://ajeet-krish.github.io/F1_Telemetry_Dashboard) (coming soon)
 
@@ -21,7 +21,7 @@ Rather than treating aerodynamics as a black box, this project derives downforce
 | Track Setups | Circuit-dependent aero (Monaco vs Monza) | FastF1 track speed maps |
 | Cornering | Downforce to lateral grip mapping | Analytical + telemetry g-g |
 | Strategy | Tire degradation, fuel-adjusted pace | FastF1 lap/position data |
-| CFD Venturi | 2D venturi tunnel ground effect simulation | SU2 RANS |
+| CFD Venturi | 2D venturi tunnel ground effect simulation | SU2 RANS SST |
 
 ### Engineering Relevance
 
@@ -54,10 +54,10 @@ src/
     track_setups.py     Circuit-dependent aero, speed-on-track maps
     cornering.py        Downforce to lateral grip mapping
     strategy.py         Tire degradation, fuel-adjusted pace
-  cfd/                # SU2 CFD integration (planned)
-    su2_runner.py       SU2 config, mesh generation, solver wrapper
+  cfd/                # SU2 CFD integration
+    su2_runner.py       SU2Config, MeshGenerator, SU2Solver, PyVista viz
     venturi.py          2D venturi tunnel with moving wall, diffuser angle sweep
-    validate.py         Validation against published data
+    validate.py         Validation against published venturi/floor data
 runners/              # Entry-point scripts (invoked via python -m)
     downforce.py        uv run python -m runners.downforce
     ride_height.py      uv run python -m runners.ride_height
@@ -65,6 +65,7 @@ runners/              # Entry-point scripts (invoked via python -m)
     track_setups.py     uv run python -m runners.track_setups
     cornering.py        uv run python -m runners.cornering
     strategy.py         uv run python -m runners.strategy
+    cfd_venturi.py      uv run python -m runners.cfd_venturi
     all.py              Run all analyses sequentially
     build_site.py       Nav bar sync for HTML pages
 docs/                 # Standalone HTML portfolio site (GitHub Pages root)
@@ -72,7 +73,7 @@ docs/                 # Standalone HTML portfolio site (GitHub Pages root)
   drs_active_aero.html, track_setups.html, cornering.html,
   strategy.html, cfd_venturi.html, implementation.html
   css/style.css         Mercedes-inspired dark theme
-  assets/images/        Generated plots and visualizations
+  assets/images/        31 generated plots and visualizations
 ```
 
 ## Getting Started
@@ -85,8 +86,12 @@ uv sync
 uv run python -m runners.downforce
 uv run python -m runners.ride_height
 
-# Run all analyses
+# Run all telemetry/analytical analyses (skips CFD)
 uv run python -m runners.all
+
+# Run CFD venturi simulation (requires SU2 v8.4)
+uv run python -m runners.cfd_venturi           # full SU2 sweeps (~30 min)
+uv run python -m runners.cfd_venturi --quick   # mesh preview only
 
 # Sync nav bar across all HTML pages
 uv run python -m runners.build_site
@@ -100,10 +105,32 @@ uv run python -m http.server -d docs 8000
 - Python 3.14+
 - `uv` package manager
 - FastF1 (telemetry data)
-- SU2 v8.4 "Harrier" (for CFD venturi simulation)
-- Gmsh Python SDK (mesh generation)
+- SU2 v8.4 "Harrier" (for CFD venturi simulation, optional)
+- Gmsh Python SDK (mesh generation, optional)
 
 All Python dependencies are in `pyproject.toml` and installed via `uv sync`.
+
+## SU2 CFD Runs
+
+The `su2_runs/` directory is organized as:
+
+```
+su2_runs/
+  configs/        -- Generated .cfg files for each case
+  meshes/         -- Structured quad .su2 mesh files
+  results/        -- Per-case result dirs (history.csv, vol_solution.vtu)
+  scratch/        -- Ad-hoc test runs
+  ride_height_sweep.json  -- Sweep data for plotting
+```
+
+Run sweeps:
+```bash
+uv run python -m runners.cfd_venturi
+```
+
+Extract field visualizations (velocity contours, Cp profiles, streamlines)
+from `vol_solution.vtu` in Paraview. Placeholder slots are in the CFD
+Venturi HTML page for 22 planned images.
 
 ## Project Status
 
@@ -116,7 +143,7 @@ All Python dependencies are in `pyproject.toml` and installed via `uv sync`.
 | 4 - Track setups | Done |
 | 5 - Cornering | Done |
 | 6 - Strategy | Done |
-| 7 - CFD venturi | Planned |
+| 7 - CFD venturi | In progress (runner + 1 sweep done; Paraview images pending) |
 | 8 - Site polish | Done |
 
 ## References
