@@ -1,6 +1,6 @@
 # F1 Aerodynamics Analysis
 
-An engineering analysis of Formula 1 car aerodynamics using real telemetry data, analytical models from first principles, and SU2 CFD validation. Built as a modular Python pipeline with a standalone Mercedes-themed HTML portfolio site.
+An interactive analysis of Formula 1 car aerodynamics using real FastF1 telemetry data, analytical models from first principles, and SU2 CFD validation. Delivered as a standalone Mercedes-themed HTML portfolio site with interactive Plotly visualizations.
 
 [Live Site](https://ajeet-krish.github.io/F1_Telemetry_Dashboard) (coming soon)
 
@@ -8,7 +8,12 @@ An engineering analysis of Formula 1 car aerodynamics using real telemetry data,
 
 This project connects theoretical aerodynamics to real-world motorsport engineering. By combining FastF1 telemetry data with analytical aerodynamic models, it demonstrates how fundamental fluid dynamics principles govern the performance of a modern Formula 1 car.
 
-Rather than treating aerodynamics as a black box, this project derives downforce, drag, and aerodynamic efficiency from first principles, calibrates analytical models against published CFD literature, and validates predictions against actual on-track telemetry.
+The site features two tiers of content:
+
+- **Interactive Telemetry Explorer** (new): Plotly-powered synchronized track maps with hover cross-referencing between the circuit layout and speed/throttle/brake/gear traces, plus a 3D grip envelope (Lat G vs Long G vs Speed) with driver comparison dropdowns.
+- **Static Analysis Pages**: Deep-dive analytical content with matplotlib/seaborn visualizations covering downforce breakdowns, ride height sensitivity, DRS mechanics, cornering performance, strategy, and powertrain regimes.
+
+Interactive and static assets live side-by-side for comparison. Static plots will be phased out as interactive equivalents mature.
 
 ### Analysis Pages
 
@@ -18,25 +23,11 @@ Rather than treating aerodynamics as a black box, this project derives downforce
 | Downforce | Component breakdown, L/D polars, speed correlation | Analytical models + telemetry |
 | Ride Height | Ground effect, porpoising, aero balance | Analytical + telemetry correlation |
 | DRS & Active Aero | DRS mechanics, overtaking, 2026 regulations | Analytical + telemetry |
-| Track Setups | Circuit-dependent aero (Monaco vs Monza) | FastF1 track speed maps |
-| Cornering | Downforce to lateral grip mapping | Analytical + telemetry g-g |
-| Strategy | Tire degradation, fuel-adjusted pace | FastF1 lap/position data |
+| Track Setups | Circuit-dependent aero, synchronized telemetry explorer | FastF1 + Plotly interactive |
+| Cornering | Downforce to lateral grip, driver KDE comparison | Analytical + telemetry g-g + seaborn |
+| Strategy | Tire degradation, fuel-adjusted pace, ridge plots | FastF1 lap/position data + simulated |
+| Powertrain & Aero | v^2 vs RPM, drag-limited vs power-limited | FastF1 telemetry scatter plots |
 | CFD Venturi | 2D venturi tunnel ground effect simulation | SU2 RANS SST |
-
-### Engineering Relevance
-
-**Mechanical & Aerospace Engineering:**
-- Fluid Dynamics: Bernoulli, boundary layer theory, ground effect, wake dynamics
-- Aerodynamic Design: Multi-element airfoils, drag polars, L/D optimization, component interaction
-- Vehicle Dynamics: Aero balance, ride height sensitivity, porpoising, platform control
-- Data Analysis: High-frequency time-series processing, statistical correlation, model validation
-
-**Python for Engineering Analysis:**
-- NumPy/SciPy: Numerical computation and analytical model implementation
-- Matplotlib: Publication-quality engineering visualizations (polar plots, contour maps, track heatmaps)
-- Pandas: Telemetry data processing and statistical analysis
-- FastF1: Direct integration with official F1 timing and telemetry APIs
-- SU2: High-fidelity CFD validation for venturi tunnel ground effect
 
 ## Architecture
 
@@ -51,30 +42,50 @@ src/
     downforce.py        Component breakdown, L/D curves, aero maps
     ride_height.py      Ground effect sensitivity, porpoising, aero balance
     drs.py              DRS effectiveness, 2026 active aero modes
-    track_setups.py     Circuit-dependent aero, speed-on-track maps
-    cornering.py        Downforce to lateral grip mapping
-    strategy.py         Tire degradation, fuel-adjusted pace
+    track_setups.py     Circuit-dependent aero, speed-on-track maps, time delta maps
+    cornering.py        Downforce to lateral grip mapping, driver KDE comparison
+    strategy.py         Tire degradation, fuel-adjusted pace, degradation ridge plots
+    powertrain.py       v^2 vs RPM, drag-limited vs power-limited regimes
+  viz/                # Interactive Plotly visualizations (new)
+    interactive.py      G-force computation, synchronized track maps, 3D envelope
   cfd/                # SU2 CFD integration
     su2_runner.py       SU2Config, MeshGenerator, SU2Solver, PyVista viz
     venturi.py          2D venturi tunnel with moving wall, diffuser angle sweep
     validate.py         Validation against published venturi/floor data
 runners/              # Entry-point scripts (invoked via python -m)
+    interactive.py      uv run python -m runners.interactive       # Plotly JSON assets
     downforce.py        uv run python -m runners.downforce
     ride_height.py      uv run python -m runners.ride_height
     drs.py              uv run python -m runners.drs
     track_setups.py     uv run python -m runners.track_setups
     cornering.py        uv run python -m runners.cornering
     strategy.py         uv run python -m runners.strategy
+    powertrain.py       uv run python -m runners.powertrain
     cfd_venturi.py      uv run python -m runners.cfd_venturi
-    all.py              Run all analyses sequentially
-    build_site.py       Nav bar sync for HTML pages
+    all.py              Run all analyses + interactive assets sequentially
+    build_site.py       Sidebar sync for HTML pages
 docs/                 # Standalone HTML portfolio site (GitHub Pages root)
-  index.html, theory.html, downforce.html, ride_height.html,
-  drs_active_aero.html, track_setups.html, cornering.html,
-  strategy.html, cfd_venturi.html, implementation.html
+  *.html                index, theory, downforce, ride_height, drs_active_aero,
+                        track_setups, cornering, strategy, powertrain, cfd_venturi,
+                        implementation
   css/style.css         Mercedes-inspired dark theme
-  assets/images/        31 generated plots and visualizations
+  assets/images/        31+ matplotlib PNG plots
+  assets/data/          Plotly JSON assets for interactive visualizations
 ```
+
+## Interactive Visualizations
+
+Two key interactive Plotly widgets are embedded in the Track Setups page:
+
+### Synchronized Telemetry Explorer
+- **Track map**: Circuit layout colored by speed (Turbo colormap) with gear shift badges overlaid at segment midpoints
+- **Telemetry traces**: Speed, throttle, brake, and gear traces plotted against distance
+- **Bidirectional hover sync**: Hovering on the map highlights the corresponding point in the telemetry traces, and vice versa
+
+### 3D Performance Envelope
+- **Grip envelope**: 3D scatter (Lateral G, Longitudinal G, Speed) computed from real telemetry curvature and speed gradients
+- **Driver comparison**: Dropdown to toggle between VER, LEC, HAM
+- **Physics explanation**: The "bowl" shape emerges because downforce scales as v^2 -- the envelope widens at higher speeds
 
 ## Getting Started
 
@@ -86,7 +97,10 @@ uv sync
 uv run python -m runners.downforce
 uv run python -m runners.ride_height
 
-# Run all telemetry/analytical analyses (skips CFD)
+# Regenerate interactive Plotly assets
+uv run python -m runners.interactive
+
+# Run all telemetry/analytical analyses + interactive assets
 uv run python -m runners.all
 
 # Run CFD venturi simulation (requires SU2 v8.4)
@@ -105,6 +119,7 @@ uv run python -m http.server -d docs 8000
 - Python 3.14+
 - `uv` package manager
 - FastF1 (telemetry data)
+- Plotly (interactive visualizations)
 - SU2 v8.4 "Harrier" (for CFD venturi simulation, optional)
 - Gmsh Python SDK (mesh generation, optional)
 
@@ -136,15 +151,17 @@ Venturi HTML page for 22 planned images.
 
 | Phase | Status |
 |-------|--------|
-| 0 - Core infrastructure | Done |
-| 1 - Downforce analysis | Done |
-| 2 - Ride height | Done |
-| 3 - DRS & Active aero | Done |
-| 4 - Track setups | Done |
-| 5 - Cornering | Done |
-| 6 - Strategy | Done |
-| 7 - CFD venturi | In progress (runner + 1 sweep done; Paraview images pending) |
-| 8 - Site polish | Done |
+| Core infrastructure | Done |
+| Downforce analysis | Done |
+| Ride height | Done |
+| DRS & Active aero | Done |
+| Track setups | Done |
+| Cornering | Done |
+| Strategy | Done |
+| Powertrain & Aero | Done |
+| Interactive Plotly viz | Done (track map sync + 3D envelope) |
+| CFD venturi | In progress (runner + 1 sweep done; Paraview images pending) |
+| Site polish | Done |
 
 ## References
 

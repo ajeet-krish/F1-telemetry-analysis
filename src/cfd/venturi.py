@@ -73,23 +73,27 @@ def _run_venturi(
     mesh_path = SU2_MESH_DIR / mesh.name
     mesh.rename(mesh_path)
 
+    total_chord = 0.3 + 0.6 + 0.8 + 0.7 + 0.5  # inlet+entry+throat+diffuser+outlet
+
     config = SU2Config(
         reynolds_number=Re,
         reynolds_length=length,
         solver="INC_RANS",
         turbulence_model="SST",
         inc_velocity_init=(velocity_ms, 0.0, 0.0),
-        cfl_number=0.5,
-        iterations=2000,
-        conv_residual_minval=-6,
+        cfl_number=0.3,
+        iterations=4000,
+        conv_residual_minval=-8,
         screen_output="WARNING",
-        marker_walls=("ground", "floor"),
+        marker_walls=("floor", "ground"),
+        marker_monitoring=("floor",),
         marker_far=(),
         marker_inlets=("inlet",),
         marker_outlets=("outlet",),
         marker_moving=("ground",),
         moving_wall=True,
-        inc_inlet_type="PRESSURE_INLET",
+        ref_area=total_chord,
+        inc_inlet_type="VELOCITY_INLET",
     )
     cfg_path = SU2_CFG_DIR / f"{stem}.cfg"
     config.write(cfg_path)
@@ -322,6 +326,8 @@ def mesh_validation(save: bool = True):
     fig, ax = plt.subplots(figsize=(12, 4))
     ax.set_facecolor(MERCEDES_DARK)
 
+    inlet_clearance = 0.010
+
     params = [
         (0.050, 10, MERCEDES_TEAL, "--"),
         (0.050, 17, MERCEDES_WHITE, "-"),
@@ -336,15 +342,15 @@ def mesh_validation(save: bool = True):
         diff_len = 0.7
         in_len = 0.3
         out_len = 0.5
-        domain_h = 0.5
+        inlet_height = h + inlet_clearance
 
         def floor_y(xx):
             if xx <= in_len:
-                return domain_h
+                return inlet_height
             elif xx <= in_len + entry_len:
                 t = (xx - in_len) / entry_len
                 smooth = t * t * (3 - 2 * t)
-                return domain_h - (domain_h - h) * smooth
+                return inlet_height - (inlet_height - h) * smooth
             elif xx <= in_len + entry_len + throat_len:
                 return h
             elif xx <= in_len + entry_len + throat_len + diff_len:
@@ -363,7 +369,7 @@ def mesh_validation(save: bool = True):
     ax.set_title("Venturi Floor Profiles")
     ax.legend(framealpha=0.9)
     ax.set_xlim(0, 2.8)
-    ax.set_ylim(-0.02, 0.55)
+    ax.set_ylim(-0.005, 0.12)
     ax.grid(True, alpha=0.3)
 
     for label in ax.get_xticklabels() + ax.get_yticklabels():

@@ -11,21 +11,34 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
-  <header class="site-header">
-    <div class="logo">F1 Aerodynamics</div>
-    <nav class="site-nav">
-      <a href="index.html">Home</a>
-      <a href="theory.html">Theory</a>
-      <a href="downforce.html"    >Downforce</a>
-      <a href="ride_height.html">Ride Height</a>
-      <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
-      <a href="track_setups.html">Track Setups</a>
-      <a href="cornering.html">Cornering</a>
-      <a href="strategy.html" class="active">Strategy</a>
-      <a href="cfd_venturi.html">CFD Venturi</a>
-      <a href="implementation.html">Code</a>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="sidebar-logo">F1 Aerodynamics</a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-heading">Analysis</div>
+        <a href="theory.html">Theory</a>
+        <a href="downforce.html">Downforce</a>
+        <a href="ride_height.html">Ride Height</a>
+        <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
+        <a href="track_setups.html">Track Setups</a>
+        <a href="cornering.html">Cornering</a>
+        <a href="strategy.html" class="active">Strategy</a>
+        <a href="powertrain.html">Powertrain &amp; Aero</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-heading">Validation</div>
+        <a href="cfd_venturi.html">CFD Venturi</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-heading">Reference</div>
+        <a href="implementation.html">Code</a>
+      </div>
     </nav>
-  </header>
+  </aside>
+
+  <div class="main-content">
 
   <main class="container">
     <div class="analysis-header">
@@ -140,6 +153,27 @@
       </p>
     </section>
 
+    <section class="section">
+      <h2>Tire Degradation Ridge Plot</h2>
+      <p>
+        While trend lines show the average degradation rate, the <em>spread</em>
+        of lap times tells a different story. As tires age, not only does the
+        median lap time increase, but the variance grows significantly. A driver
+        on 25-lap-old tires might produce a lap anywhere from 0.3s faster to 0.5s
+        slower than the trend line -- the performance becomes unpredictable.
+      </p>
+      <p>
+        The ridge plot stacks KDE distributions for each stint phase, making
+        both the shift (median moving right) and the spread (curves getting
+        wider) visible simultaneously. The green-to-red transition shows the
+        degradation arc visually.
+      </p>
+      <div class="figure">
+        <img src="assets/images/strategy_tire_ridge.png" alt="Tire degradation ridge plot">
+        <div class="caption">Ridge plot of lap time distributions over a 30-lap stint. Each ridge represents 5 laps. The median shifts from ~82.4s to ~83.6s, and the spread nearly doubles, reflecting the performance instability of aged tires.</div>
+      </div>
+    </section>
+
     <section class="key-findings">
       <h3>Key Findings</h3>
       <ul>
@@ -177,10 +211,12 @@
       renderMathInElement(document.body, {
         delimiters: [
           {left: "$$", right: "$$", display: true},
-          {left: "$", right: "$", display: false}
+          {left: "$", right: "$", display: false},
+          {left: "\[", right: "\]", display: false}
         ]
       });
     });
   </script>
+  </div>
 </body>
 </html>

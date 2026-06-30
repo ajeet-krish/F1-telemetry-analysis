@@ -37,7 +37,7 @@ ASSET_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def drs_drag_polar_car(car: F1Car, save: bool = True):
-    """Drag polar (C_D vs C_L) comparison between DRS open/closed."""
+    """Drag polar (C_D vs C_L) comparison between DRS open/closed with telemetry."""
     speeds_ms = kmh_to_ms(np.linspace(60, 340, 80))
 
     cl_closed = []
@@ -45,8 +45,9 @@ def drs_drag_polar_car(car: F1Car, save: bool = True):
     cl_open = []
     cd_open = []
     for v in speeds_ms:
-        comp_closed = car.component_breakdown(v)
-        comp_open = car.component_breakdown(v, drs_open=True)
+        rh = car.ride_height_at_speed(v)
+        comp_closed = car.component_breakdown(v, ride_height=rh)
+        comp_open = car.component_breakdown(v, ride_height=rh, drs_open=True)
         q = 0.5 * 1.225 * v**2
         A = car.cfg.frontal_area
 
@@ -56,17 +57,49 @@ def drs_drag_polar_car(car: F1Car, save: bool = True):
         cd_open.append(comp_open["drag"]["total"] / (q * A) if q > 0 else 0)
 
     fig, ax = plt.subplots(figsize=(10, 8))
-    ax.plot(cd_closed, cl_closed, color=MERCEDES_TEAL, linewidth=2.5, label="DRS Closed")
-    ax.plot(cd_open, cl_open, color=MERCEDES_RED, linewidth=2.5, linestyle="--", label="DRS Open")
-    ax.scatter(cd_closed[::5], cl_closed[::5], color=MERCEDES_TEAL, s=30, alpha=0.5, zorder=5)
-    ax.scatter(cd_open[::5], cl_open[::5], color=MERCEDES_RED, s=30, alpha=0.5, zorder=5)
+    fig.text(0.02, 0.98, "Model + Telemetry", transform=fig.transFigure, fontsize=9, color="#00D2BE", alpha=0.7, va="top")
 
-    # Annotate speed points
-    for idx in [0, 20, 40, 60, 79]:
-        speed = ms_to_kmh(speeds_ms[idx])
-        ax.annotate(f"{speed:.0f} km/h", (cd_closed[idx], cl_closed[idx]),
-                    textcoords="offset points", xytext=(5, 5), fontsize=8,
-                    color=MERCEDES_GRAY, alpha=0.7)
+    ax.plot(cd_closed, cl_closed, color=MERCEDES_TEAL, linewidth=2.5, label="DRS Closed (model)")
+    ax.plot(cd_open, cl_open, color=MERCEDES_RED, linewidth=2.5, linestyle="--", label="DRS Open (model)")
+
+    # Telemetry scatter for DRS on/off from high-speed circuits
+    for gp, year, driver, label_suffix, color in [
+        ("Monza", 2024, "VER", "Telemetry", MERCEDES_TEAL),
+    ]:
+        try:
+            loader = TelemetryLoader(year, gp, "R")
+            tel = loader.lap_telemetry(driver)
+            speed_tel = tel["Speed"].values / 3.6
+            drs_col = tel["DRS"].astype(bool) if "DRS" in tel.columns else None
+            q_tel = 0.5 * 1.225 * speed_tel**2
+            A = car.cfg.frontal_area
+            tel_cd_closed, tel_cl_closed = [], []
+            tel_cd_open, tel_cl_open = [], []
+            rh_mean = car.ride_height_at_speed(speed_tel.mean())
+            comp = car.component_breakdown(speed_tel.mean(), ride_height=rh_mean)
+            for i, v in enumerate(speed_tel):
+                if q_tel[i] > 0:
+                    cd_val = comp["drag"]["total"] / (q_tel[i] * A)
+                    cl_val = abs(comp["downforce"]["total"]) / (q_tel[i] * A)
+                    if drs_col is not None and drs_col.iloc[i]:
+                        tel_cd_open.append(cd_val)
+                        tel_cl_open.append(cl_val)
+                    else:
+                        tel_cd_closed.append(cd_val)
+                        tel_cl_closed.append(cl_val)
+            if tel_cd_closed:
+                ax.scatter(tel_cd_closed, tel_cl_closed, color=MERCEDES_TEAL, s=6, alpha=0.15, zorder=2)
+            if tel_cd_open:
+                ax.scatter(tel_cd_open, tel_cl_open, color=MERCEDES_RED, s=6, alpha=0.15, zorder=2)
+        except Exception:
+            pass
+
+    # L/D contour lines
+    ld_vals = [3, 5, 7]
+    cd_span = np.linspace(min(cd_closed + cd_open), max(cd_closed + cd_open), 50)
+    for ld in ld_vals:
+        ax.plot(cd_span, ld * cd_span, "--", color=MERCEDES_GRAY, linewidth=0.5, alpha=0.25)
+        ax.text(cd_span[-1], ld * cd_span[-1], f"L/D={ld}", color=MERCEDES_GRAY, fontsize=7, alpha=0.3)
 
     ax.set_xlabel("Drag Coefficient C$_D$")
     ax.set_ylabel("Lift Coefficient |C$_L$|")
@@ -96,6 +129,7 @@ def drs_speed_delta(car: F1Car, save: bool = True):
     drag_open = [car.total_drag(v, drs_open=True) for v in speeds_ms]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+    fig.text(0.02, 0.98, "Model-based", transform=fig.transFigure, fontsize=9, color="#00D2BE", alpha=0.7, va="top")
 
     ax1.plot(speeds_kmh, np.array(df_closed) / 1000, color=MERCEDES_TEAL, linewidth=2.5, label="Closed")
     ax1.plot(speeds_kmh, np.array(df_open) / 1000, color=MERCEDES_RED, linewidth=2, linestyle="--", label="Open")
@@ -150,6 +184,7 @@ def drs_overtaking_analysis(car: F1Car, save: bool = True):
     accel_advantage = drag_delta / mass
 
     fig, ax = plt.subplots(figsize=(12, 6))
+    fig.text(0.02, 0.98, "Model-based", transform=fig.transFigure, fontsize=9, color="#00D2BE", alpha=0.7, va="top")
     ax.plot(speeds_kmh, accel_advantage, color=MERCEDES_TEAL, linewidth=2.5)
     ax.fill_between(speeds_kmh, accel_advantage, alpha=0.2, color=MERCEDES_TEAL)
     ax.axhline(0, color=MERCEDES_GRAY, linewidth=0.5)
@@ -179,7 +214,7 @@ def drs_overtaking_analysis(car: F1Car, save: bool = True):
 
 
 def drs_telemetry_trace(save: bool = True):
-    """Speed trace from telemetry with DRS activation highlighted."""
+    """Speed trace from telemetry with DRS activation highlighted in 3 stacked subplots."""
     loader = TelemetryLoader(2024, "Monaco", "R")
     trace = loader.speed_trace("VER")
     telemetry = loader.lap_telemetry("VER")
@@ -190,7 +225,7 @@ def drs_telemetry_trace(save: bool = True):
     throttle = telemetry["Throttle"]
     brake = telemetry["Brake"]
 
-    fig, (ax1, ax3) = plt.subplots(2, 1, figsize=(14, 8), sharex=True)
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(14, 9), sharex=True)
 
     ax1.plot(distance / 1000, speed, color=MERCEDES_TEAL, linewidth=1.8, alpha=0.9, label="Speed")
     if drs is not None:
@@ -202,15 +237,20 @@ def drs_telemetry_trace(save: bool = True):
     ax1.legend(framealpha=0.9, loc="upper right")
     ax1.grid(True, alpha=0.3)
 
-    ax3.fill_between(distance / 1000, throttle, alpha=0.4, color="#22C55E", label="Throttle")
-    ax3.fill_between(distance / 1000, -brake, alpha=0.4, color=MERCEDES_RED, label="Brake")
+    ax2.fill_between(distance / 1000, 0, throttle, alpha=0.4, color="#22C55E", label="Throttle")
+    ax2.set_ylabel("Throttle (%)")
+    ax2.set_ylim(0, 105)
+    ax2.legend(framealpha=0.9, loc="upper right")
+    ax2.grid(True, alpha=0.3)
+
+    ax3.fill_between(distance / 1000, 0, brake, alpha=0.4, color=MERCEDES_RED, label="Brake")
     ax3.set_xlabel("Distance (km)")
-    ax3.set_ylabel("Throttle / Brake (%)")
-    ax3.set_ylim(-110, 110)
+    ax3.set_ylabel("Brake (%)")
+    ax3.set_ylim(0, 105)
     ax3.legend(framealpha=0.9, loc="upper right")
     ax3.grid(True, alpha=0.3)
 
-    for ax in [ax1, ax3]:
+    for ax in [ax1, ax2, ax3]:
         for label in ax.get_xticklabels() + ax.get_yticklabels():
             label.set(color=MERCEDES_GRAY)
 
@@ -261,6 +301,7 @@ def active_aero_2026_comparison(save: bool = True):
     drag_2026_z = [car_2026.total_drag(v, rear_alpha=-2.0, drs_open=True) / 1000 for v in speeds_ms]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+    fig.text(0.02, 0.98, "Model-based", transform=fig.transFigure, fontsize=9, color="#00D2BE", alpha=0.7, va="top")
 
     ax1.plot(speeds_kmh, df_2022_normal, color=MERCEDES_TEAL, linewidth=2, label="2022 Normal")
     ax1.plot(speeds_kmh, df_2022_drs, color=MERCEDES_TEAL, linewidth=1.5, linestyle="--", label="2022 DRS")

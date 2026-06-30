@@ -25,3 +25,7 @@ su2_runs/
 
 # Project instructions (not for the site)
 AGENTS.md
+
+# Temporary test files
+test_*.py
+test_*.json

@@ -38,7 +38,7 @@ def validate_vs_analytical(save: bool = True):
     floor_model = Floor()
 
     heights = np.linspace(0.025, 0.100, 20)
-    cl_analytical = [abs(floor_model.cl(h, velocity_ms=60.0)) for h in heights]
+    cl_analytical = [floor_model.cl(h, velocity_ms=60.0) for h in heights]
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -96,8 +96,11 @@ def plot_convergence(save: bool = True):
         hist = rd / "history.csv"
         if hist.exists():
             try:
-                data = np.loadtxt(hist, delimiter=",", skiprows=1)
-                ax.semilogy(data[:, 0], data[:, 1], label=rd.name, alpha=0.7)
+                data = np.genfromtxt(hist, delimiter=",", skip_header=1, invalid_raise=False)
+                if data.ndim == 2 and data.shape[1] >= 3:
+                    iters = data[:, 1]  # Inner_Iter
+                    rms_p = 10 ** data[:, 2]  # rms[P] (stored as log10)
+                    ax.semilogy(iters, rms_p, label=rd.name, alpha=0.7)
             except Exception:
                 pass
 

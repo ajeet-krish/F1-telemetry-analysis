@@ -4,7 +4,8 @@ Usage:
     uv run python -m runners.all
 """
 
-from src.analysis import downforce, ride_height, drs, track_setups, cornering, strategy
+from src.analysis import downforce, ride_height, drs, track_setups, cornering, strategy, powertrain
+from runners import interactive
 
 MODULES = [
     ("Downforce", downforce),
@@ -13,6 +14,7 @@ MODULES = [
     ("Track Setups", track_setups),
     ("Cornering", cornering),
     ("Strategy", strategy),
+    ("Powertrain & Aero", powertrain),
 ]
 
 
@@ -22,6 +24,11 @@ def run_all():
         print(f"  {name}")
         print(f"{'=' * 60}")
         mod.run_all()
+
+    print(f"\n{'=' * 60}")
+    print("  Interactive Assets")
+    print(f"{'=' * 60}")
+    interactive.run_all()
 
 
 if __name__ == "__main__":

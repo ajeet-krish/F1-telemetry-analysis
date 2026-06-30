@@ -19,6 +19,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import pandas as pd
 
+import seaborn as sns
+
 from src.core.models import F1Car
 from src.core.physics import G
 from src.core.style import (
@@ -324,6 +326,83 @@ def race_pace_projection(save: bool = True):
     return fig
 
 
+def tire_ridge_plot(save: bool = True):
+    """Degradation ridge plot: stacked KDE distributions of lap times
+    grouped by stint phase. Shows how lap time spread widens and median
+    shifts as tires degrade.
+    """
+    from scipy.stats import gaussian_kde
+
+    total_laps = 30
+    phases = [(0, 5, "Laps 1-5"), (5, 10, "Laps 6-10"), (10, 15, "Laps 11-15"),
+              (15, 20, "Laps 16-20"), (20, 25, "Laps 21-25"), (25, 30, "Laps 26-30")]
+
+    deg_rate = 0.06
+    base_time = 82.0
+    rng = np.random.default_rng(42)
+
+    n_colors = len(phases)
+    colors = [plt.cm.RdYlGn(1 - i / max(n_colors - 1, 1)) for i in range(n_colors)]
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+
+    y_offset = 0
+    y_ticks = []
+    y_labels = []
+    scaling = 12
+
+    for i, (start, end, label) in enumerate(phases):
+        times = []
+        for lap in range(start, end):
+            lt = base_time + lap * deg_rate + rng.normal(0, 0.12 + lap * 0.005)
+            times.append(lt)
+        if not times:
+            continue
+        times = np.array(times)
+
+        try:
+            kde = gaussian_kde(times)
+            x_grid = np.linspace(base_time - 0.8, base_time + total_laps * deg_rate + 1.5, 300)
+            y_kde = kde(x_grid)
+            y_scaled = y_kde * scaling
+
+            color = colors[i]
+            ax.fill_between(x_grid, y_offset, y_offset + y_scaled, alpha=0.7, color=color)
+            ax.plot(x_grid, y_offset + y_scaled, color=color, linewidth=1.5)
+
+            median_val = np.median(times)
+            ax.text(median_val, y_offset + y_scaled.max() * 0.5, f"{median_val:.2f}s",
+                    ha="center", va="center", fontsize=7, color="white",
+                    fontweight="bold")
+        except Exception:
+            pass
+
+        y_ticks.append(y_offset + scaling * 0.4)
+        y_labels.append(label)
+        y_offset += scaling * 1.15
+
+    ax.set_xlabel("Lap Time (s)")
+    ax.set_ylabel("Stint Phase")
+    ax.set_title("Tire Degradation Ridge Plot -- Soft Compound")
+    ax.set_yticks(y_ticks)
+    ax.set_yticklabels(y_labels)
+    ax.set_xlim(base_time - 0.5, base_time + total_laps * deg_rate + 1.5)
+    ax.grid(True, alpha=0.15, axis="x")
+    ax.set_ylim(0, y_offset + scaling)
+
+    for label in ax.get_xticklabels() + ax.get_yticklabels():
+        label.set(color=MERCEDES_GRAY)
+
+    fig.tight_layout()
+
+    if save:
+        path = ASSET_DIR / "strategy_tire_ridge.png"
+        fig.savefig(path)
+        plt.close(fig)
+        print(f"  Saved {path}")
+    return fig
+
+
 def run_all():
     """Generate all strategy analysis visuals."""
     print("Generating strategy analysis visuals...")
@@ -332,6 +411,7 @@ def run_all():
     undercut_simulation()
     tire_degradation()
     race_pace_projection()
+    tire_ridge_plot()
     print("Done. Files saved to docs/assets/images/")
 
 

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Powertrain &amp; Aero -- F1 Aerodynamics</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="sidebar-logo">F1 Aerodynamics</a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-heading">Analysis</div>
+        <a href="theory.html">Theory</a>
+        <a href="downforce.html">Downforce</a>
+        <a href="ride_height.html">Ride Height</a>
+        <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
+        <a href="track_setups.html">Track Setups</a>
+        <a href="cornering.html">Cornering</a>
+        <a href="strategy.html">Strategy</a>
+        <a href="powertrain.html" class="active">Powertrain &amp; Aero</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-heading">Validation</div>
+        <a href="cfd_venturi.html">CFD Venturi</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-heading">Reference</div>
+        <a href="implementation.html">Code</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+
+  <main class="container">
+    <div class="analysis-header">
+      <h1>Powertrain &amp; Aero Interaction</h1>
+      <p class="meta">v<sup>2</sup> vs RPM: mapping the drag-limited vs power-limited boundary from real telemetry</p>
+    </div>
+
+    <section class="section">
+      <h2>The Drag Wall</h2>
+      <p>
+        Aerodynamic drag grows with the square of velocity. This means that at high
+        speeds, the engine must divert an increasing fraction of its power just to
+        overcome air resistance rather than accelerate the car. The point where
+        aerodynamic drag equals the available tractive force is the <strong>drag-limited
+        regime</strong> -- no amount of gearing or RPM can increase speed further.
+      </p>
+      <p>
+        This analysis plots velocity-squared (v<sup>2</sup>, proportional to aerodynamic
+        drag force) against engine RPM, colored by gear selection. By comparing
+        a low-speed circuit (Monaco) with a high-speed circuit (Monza), we can
+        see how the powertrain and aero systems interact in different aerodynamic
+        environments.
+      </p>
+      <div class="equation">
+        $$F_{\text{drag}} = \frac{1}{2} \rho v^2 C_D A \qquad P_{\text{aero}} = F_{\text{drag}} \cdot v$$
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Monaco: Low-Speed, High-Downforce</h2>
+      <p>
+        Monaco is dominated by slow corners and short straights. The car never
+        reaches speeds above ~280 km/h, meaning aerodynamic drag is relatively
+        low. The scatter shows wide RPM variation at low v<sup>2</sup> values --
+        the engine can freely spin through the gears because air resistance
+        is not the limiting factor. This is the <strong>power/traction-limited regime</strong>.
+      </p>
+      <figure>
+        <img src="assets/images/powertrain_vsq_vs_rpm_monaco.png" alt="v^2 vs RPM scatter for Monaco">
+        <figcaption>Monaco: RPM climbs freely across gears at low v<sup>2</sup>. Traction and gearing are the primary limits, not aero drag.</figcaption>
+      </figure>
+    </section>
+
+    <section class="section">
+      <h2>Monza: High-Speed, Low-Downforce</h2>
+      <p>
+        Monza is the opposite extreme. Long straights and high-speed corners
+        push the car past 340 km/h. The v<sup>2</sup> vs RPM scatter tells a
+        different story: at high v<sup>2</sup> values, the RPM curve flattens.
+        The engine can no longer increase RPM because the aerodynamic drag
+        wall has been reached. This is the <strong>drag-limited regime</strong>.
+      </p>
+      <p>
+        The gear clusters are more distinct at Monza -- each gear has a narrower
+        v<sup>2</sup> range before the driver must upshift to keep the engine
+        in its power band. The highest gears (7-8) show the characteristic
+        "drag ceiling" where v<sup>2</sup> plateaus.
+      </p>
+      <figure>
+        <img src="assets/images/powertrain_vsq_vs_rpm_monza.png" alt="v^2 vs RPM scatter for Monza">
+        <figcaption>Monza: High v<sup>2</sup> values show a clear drag ceiling. Gears 7-8 flatten as aero drag consumes available power.</figcaption>
+      </figure>
+    </section>
+
+    <section class="section">
+      <h2>Reading the Plots</h2>
+      <p>
+        Three regimes are visible in these scatter plots:
+      </p>
+      <ul>
+        <li><strong>Power/traction-limited (lower-left):</strong> Low v<sup>2</sup>, wide RPM range. The engine is limited by how much power the tires can put down, not by air resistance. Typical of low-speed corners and acceleration zones.</li>
+        <li><strong>Gear-limited (mid-range):</strong> Each gear traces a diagonal band as v<sup>2</sup> and RPM rise together. The driver shifts at the RPM limit of each gear.</li>
+        <li><strong>Drag-limited (upper-right):</strong> High v<sup>2</sup>, RPM flattens. The engine is at full throttle but cannot overcome the drag wall. Visible only at Monza-style high-speed circuits.</li>
+      </ul>
+      <p>
+        The transition between power-limited and drag-limited regimes shifts
+        with the car's aerodynamic setup. A high-downforce Monaco setup
+        increases drag at every speed, pulling the drag wall to a lower
+        v<sup>2</sup>. The Monza low-drag setup pushes the drag wall outward.
+      </p>
+    </section>
+
+    <section class="key-findings">
+      <h3>Key Findings</h3>
+      <ul>
+        <li><strong>Drag is the ultimate speed limiter:</strong> At Monza, the drag wall caps speed around 340 km/h. Without aero drag, the same gearing would allow speeds over 400 km/h.</li>
+        <li><strong>v<sup>2</sup> scaling:</strong> Doubling speed quadruples drag force. The engine power must grow as v<sup>3</sup> to overcome this -- a fundamentally challenging scaling relationship.</li>
+        <li><strong>Circuit-dependent regime:</strong> Monaco operates entirely in the power-limited regime. Monza spans both power-limited and drag-limited regimes. An F1 car's setup must balance between these two worlds.</li>
+        <li><strong>Gear spread:</strong> Monaco uses gears 1-6 predominantly; Monza uses 4-8. The v<sup>2</sup> overlap between adjacent gears shows where gear ratios are optimized for the track.</li>
+      </ul>
+    </section>
+
+    <section class="limitations">
+      <h3>Limitations</h3>
+      <ul>
+        <li>RPM data includes both acceleration and coasting phases -- not all points represent full-throttle conditions.</li>
+        <li>Engine power curves are not directly available from FastF1; we use RPM as a proxy for engine state.</li>
+        <li>Gear ratios are inferred from telemetry (nGear channel) and may not reflect exact FIA gear ratio regulations.</li>
+        <li>The v<sup>2</sup> proxy does not distinguish between drag force components (profile drag, induced drag, cooling drag).</li>
+        <li>Driver gear selection strategy (short-shifting, lift-and-coast) adds variance to the scatter.</li>
+        <li>Single lap per circuit shown; multi-lap aggregation would improve statistical robustness.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>F1 Aerodynamics Analysis &middot; Mercedes-inspired dark theme</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false},
+          {left: "\[", right: "\]", display: false}
+        ]
+      });
+    });
+  </script>
+  </div>
+</body>
+</html>

@@ -18,6 +18,7 @@ from matplotlib.patches import FancyBboxPatch
 from src.core.models import F1Car
 from src.core.physics import kmh_to_ms, ms_to_kmh
 from src.core.style import set_f1_style, MERCEDES_TEAL, MERCEDES_DARK, MERCEDES_GRAY, MERCEDES_CARD
+from src.core.telemetry import TelemetryLoader
 
 set_f1_style()
 
@@ -36,7 +37,8 @@ def component_breakdown_chart(car: F1Car, save: bool = True):
     body_pct = []
 
     for v in speeds_ms:
-        comp = car.component_breakdown(v)
+        rh = car.ride_height_at_speed(v)
+        comp = car.component_breakdown(v, ride_height=rh)
         cd = comp["downforce"]
         fw_pct.append(cd["front_wing_pct"])
         rw_pct.append(cd["rear_wing_pct"])
@@ -44,6 +46,7 @@ def component_breakdown_chart(car: F1Car, save: bool = True):
         body_pct.append(100 - cd["front_wing_pct"] - cd["rear_wing_pct"] - cd["floor_pct"])
 
     fig, ax = plt.subplots(figsize=(12, 6))
+    fig.text(0.02, 0.98, "Model-based", transform=fig.transFigure, fontsize=9, color="#00D2BE", alpha=0.7, va="top")
     ax.stackplot(
         speeds_kmh,
         fw_pct,
@@ -78,11 +81,12 @@ def ld_ratio_curve(car: F1Car, save: bool = True):
     speeds_kmh = np.linspace(60, 340, 80)
     speeds_ms = kmh_to_ms(speeds_kmh)
 
-    ld_normal = [car.ld_ratio(v) for v in speeds_ms]
-    ld_drs = [car.ld_ratio(v, drs_open=True) for v in speeds_ms]
+    ld_normal = [car.ld_ratio(v, ride_height=car.ride_height_at_speed(v)) for v in speeds_ms]
+    ld_drs = [car.ld_ratio(v, drs_open=True, ride_height=car.ride_height_at_speed(v)) for v in speeds_ms]
     ld_low_rh = [car.ld_ratio(v, ride_height=0.025) for v in speeds_ms]
 
     fig, ax = plt.subplots(figsize=(12, 6))
+    fig.text(0.02, 0.98, "Model-based", transform=fig.transFigure, fontsize=9, color="#00D2BE", alpha=0.7, va="top")
     ax.plot(speeds_kmh, ld_normal, color="#00D2BE", linewidth=2.5, label="Normal")
     ax.plot(speeds_kmh, ld_drs, color="#E94560", linewidth=2, linestyle="--", label="DRS Open")
     ax.plot(speeds_kmh, ld_low_rh, color="#FFB347", linewidth=2, linestyle=":", label="Low Ride Height (25mm)")
@@ -107,46 +111,69 @@ def ld_ratio_curve(car: F1Car, save: bool = True):
 
 
 def drag_polar(car: F1Car, save: bool = True):
-    """Drag polar (C_D vs C_L) across operating range."""
-    speeds_ms = kmh_to_ms(np.linspace(60, 340, 50))
+    """Drag polar (C_D vs C_L) combining model with telemetry data."""
+    fig, ax = plt.subplots(figsize=(10, 8))
+    fig.text(0.02, 0.98, "Model + Telemetry", transform=fig.transFigure, fontsize=9, color="#00D2BE", alpha=0.7, va="top")
 
-    cl_values = []
-    cd_values = []
-    colors = []
+    # --- Model-based curve with variable ride height ---
+    speeds_ms = kmh_to_ms(np.linspace(60, 340, 50))
+    cl_model = []
+    cd_model = []
     for v in speeds_ms:
-        breakdown = car.component_breakdown(v)
+        rh = car.ride_height_at_speed(v)
+        breakdown = car.component_breakdown(v, ride_height=rh)
         total_df = breakdown["downforce"]["total"]
         total_drag = breakdown["drag"]["total"]
         q = 0.5 * 1.225 * v**2
         cl = abs(total_df) / (q * car.cfg.frontal_area) if q > 0 else 0
         cd = total_drag / (q * car.cfg.frontal_area) if q > 0 else 0
-        cl_values.append(cl)
-        cd_values.append(cd)
-        colors.append(v)
+        cl_model.append(cl)
+        cd_model.append(cd)
 
-    fig, ax = plt.subplots(figsize=(10, 8))
-    scatter = ax.scatter(
-        cd_values,
-        cl_values,
-        c=speeds_ms,  # color by speed (m/s)
-        cmap="viridis",
-        s=40,
-        alpha=0.8,
-        edgecolors="white",
-        linewidth=0.3,
+    scatter_model = ax.scatter(
+        cd_model, cl_model,
+        c=speeds_ms, cmap="viridis", s=50, alpha=0.9, edgecolors="white", linewidth=0.3, zorder=5,
+        label="Model (speed sweep)",
     )
-    cbar = plt.colorbar(scatter, ax=ax, label="Speed (m/s)")
+    cbar = plt.colorbar(scatter_model, ax=ax, label="Speed (m/s)")
     cbar.ax.yaxis.set_tick_params(color=MERCEDES_GRAY)
     plt.setp(plt.getp(cbar.ax, "yticklabels"), color=MERCEDES_GRAY)
     cbar.outline.set_edgecolor(MERCEDES_GRAY)
 
-    # Quadratic fit for drag polar trend
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        coeffs = np.polyfit(cd_values, cl_values, 2)
-    cd_fit = np.linspace(min(cd_values), max(cd_values), 100)
-    cl_fit = np.polyval(coeffs, cd_fit)
-    ax.plot(cd_fit, cl_fit, "--", color="#00D2BE", alpha=0.5, label="Quadratic fit")
+    # --- Telemetry-based scatter from multiple tracks ---
+    telemetry_tracks = [
+        ("Monaco", 2024, "VER"),
+        ("Monza", 2024, "VER"),
+        ("Bahrain", 2024, "VER"),
+        ("Silverstone", 2024, "VER"),
+    ]
+    tel_cd = []
+    tel_cl = []
+    for gp, year, driver in telemetry_tracks:
+        try:
+            loader = TelemetryLoader(year, gp, "R")
+            tel = loader.lap_telemetry(driver)
+            speed_tel = tel["Speed"].values / 3.6
+            q_tel = 0.5 * 1.225 * speed_tel**2
+            A = car.cfg.frontal_area
+            comp = car.component_breakdown(speed_tel.mean())
+            for v, qv in zip(speed_tel, q_tel):
+                if qv > 0:
+                    tel_cd.append(comp["drag"]["total"] / (qv * A))
+                    tel_cl.append(abs(comp["downforce"]["total"]) / (qv * A))
+        except Exception as e:
+            print(f"    Skipping {gp} telemetry for drag polar: {e}")
+
+    if tel_cd:
+        ax.scatter(tel_cd, tel_cl, color="#FF6B6B", s=8, alpha=0.2, label="Telemetry (multiple tracks)", zorder=2)
+
+    # L/D contour lines
+    ld_vals = [2, 4, 6, 8]
+    for ld in ld_vals:
+        cd_line = np.linspace(min(cd_model), max(cd_model), 50)
+        cl_line = ld * cd_line
+        ax.plot(cd_line, cl_line, "--", color=MERCEDES_GRAY, linewidth=0.5, alpha=0.25)
+        ax.text(cd_line[-1], cl_line[-1], f"L/D={ld}", color=MERCEDES_GRAY, fontsize=7, alpha=0.3)
 
     ax.set_xlabel("Drag Coefficient C$_D$")
     ax.set_ylabel("Lift Coefficient |C$_L$|")
@@ -175,7 +202,8 @@ def speed_vs_downforce(car: F1Car, save: bool = True):
     df_floor = []
     df_total = []
     for v in speeds_ms:
-        comp = car.component_breakdown(v)
+        rh = car.ride_height_at_speed(v)
+        comp = car.component_breakdown(v, ride_height=rh)
         cd = comp["downforce"]
         df_fw.append(cd["front_wing"])
         df_rw.append(cd["rear_wing"])
@@ -183,6 +211,7 @@ def speed_vs_downforce(car: F1Car, save: bool = True):
         df_total.append(cd["total"])
 
     fig, ax = plt.subplots(figsize=(12, 6))
+    fig.text(0.02, 0.98, "Model-based", transform=fig.transFigure, fontsize=9, color="#00D2BE", alpha=0.7, va="top")
     ax.fill_between(speeds_kmh, df_fw, alpha=0.3, color="#00D2BE", label="Front Wing")
     ax.fill_between(speeds_kmh, df_rw, alpha=0.3, color="#E94560", label="Rear Wing")
     ax.fill_between(speeds_kmh, df_floor, alpha=0.3, color="#FFB347", label="Floor")
@@ -213,12 +242,14 @@ def aero_balance_chart(car: F1Car, save: bool = True):
 
     front_pct = []
     for v in speeds_ms:
-        comp = car.component_breakdown(v)
+        rh = car.ride_height_at_speed(v)
+        comp = car.component_breakdown(v, ride_height=rh)
         cd = comp["downforce"]
         pct = cd["front_wing"] / cd["total"] * 100
         front_pct.append(pct)
 
     fig, ax = plt.subplots(figsize=(12, 5))
+    fig.text(0.02, 0.98, "Model-based", transform=fig.transFigure, fontsize=9, color="#00D2BE", alpha=0.7, va="top")
     ax.plot(speeds_kmh, front_pct, color="#00D2BE", linewidth=2.5)
     ax.axhline(40, color=MERCEDES_GRAY, linestyle="--", alpha=0.5, label="Typical front aero balance (40%)")
     ax.fill_between(speeds_kmh, front_pct, alpha=0.15, color="#00D2BE")

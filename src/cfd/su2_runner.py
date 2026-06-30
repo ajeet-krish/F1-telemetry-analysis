@@ -53,8 +53,10 @@ class SU2Config:
     marker_outlets: tuple = ()
     marker_moving: tuple = ("wall",)
     moving_wall: bool = False
+    marker_monitoring: tuple = ()  # if empty, monitors all marker_walls
     inc_inlet_type: str = "VELOCITY_INLET"  # VELOCITY_INLET or PRESSURE_INLET
     inc_outlet_type: str = "PRESSURE_OUTLET"  # PRESSURE_OUTLET for incompressible
+    inlet_density: float = 1.225  # density for VELOCITY_INLET
     time_domain: bool = False
     time_marching: str = "NO"
     time_step: float = 0.0
@@ -111,10 +113,10 @@ class SU2Config:
             f"% ------------------------ BOUNDARY CONDITIONS -------------------------",
             f"MARKER_HEATFLUX= ( {' , '.join(f'{m}, 0.0' for m in self.marker_walls)} )",
             f"{f'WALL_ROUGHNESS= ( {self.marker_walls[0]}, {self.wall_roughness:.6e} )' if self.wall_roughness > 0 else '% No wall roughness'}",
-            f"MARKER_MONITORING= ( {self.marker_walls[0]} )",
+            f"MARKER_MONITORING= ( {' , '.join(self.marker_monitoring) if self.marker_monitoring else ' , '.join(self.marker_walls)} )",
             f"MARKER_FAR= ( {', '.join(self.marker_far)} )" if self.marker_far else "% No farfield",
             f"{'INC_INLET_TYPE= ' + ' '.join([self.inc_inlet_type] * len(self.marker_inlets)) if self.marker_inlets else '% No inlet'}",
-            f"MARKER_INLET= ( {self.marker_inlets[0]}, 60.0, 1.0, 0.0, 0.0, 1.225 )" if self.marker_inlets and self.inc_inlet_type == "VELOCITY_INLET" else (
+            f"MARKER_INLET= ( {self.marker_inlets[0]}, {self.inc_velocity_init[0]}, {self.inc_velocity_init[1]}, {self.inc_velocity_init[2]}, {self.inlet_density}, 0.0 )" if self.marker_inlets and self.inc_inlet_type == "VELOCITY_INLET" else (
             f"MARKER_INLET= ( {self.marker_inlets[0]}, 288.15, 101325.0, 1.0, 0.0, 0.0 )" if self.marker_inlets else "% No inlet"),
             f"{f'INC_OUTLET_TYPE= {self.inc_outlet_type}' if self.marker_outlets else '% No outlet'}",
             f"{f'MARKER_OUTLET= ( {self.marker_outlets[0]}, 0.0 )' if self.marker_outlets else '% No outlet'}",
@@ -158,7 +160,7 @@ class SU2Config:
             f"LINEAR_SOLVER_ITER= 10",
             f"",
             f"% ------------------------- REFERENCE VALUE DEFINITION -------------------",
-            f"{f'REF_AREA= {self.ref_area}' if self.ref_area else '%% REF_AREA not set (assuming 2D)'}",
+            f"REF_AREA= {self.ref_area if self.ref_area else 1.0}",
             f"",
             f"% ------------------------- OUTPUT ---------------------------------------",
             f"SCREEN_OUTPUT= ({self.screen_output})",
@@ -185,12 +187,12 @@ class MeshGenerator:
         throat_length: float = 0.8,
         entry_length: float = 0.6,
         diffuser_length: float = 0.7,
-        domain_height: float = 0.5,
+        inlet_clearance: float = 0.010,
         domain_inlet: float = 0.3,
         domain_outlet: float = 0.5,
-        n_x: int = 200,
-        n_y: int = 80,
-        n_wall: int = 15,
+        n_x: int = 300,
+        n_y: int = 120,
+        bl_coef: float = -1.05,
         name: str = "venturi",
     ) -> Path:
         """Create a 2D structured venturi mesh with moving ground.
@@ -198,6 +200,7 @@ class MeshGenerator:
         The venturi represents an F1 floor with:
         - Flat ground at y=0 (moving wall)
         - Profiled floor on top with converging, throat, and diffuser sections
+        - Inlet height = ride_height + inlet_clearance (avoids extreme area ratios)
 
         Args:
             ride_height: Minimum gap at throat (m)
@@ -205,12 +208,12 @@ class MeshGenerator:
             throat_length: Length of constant-height throat section (m)
             entry_length: Length of converging entry section (m)
             diffuser_length: Length of diffuser ramp section (m)
-            domain_height: Height of domain above ground at inlet (m)
+            inlet_clearance: Extra height at inlet above ride_height (m)
             domain_inlet: Length of inlet section before venturi (m)
             domain_outlet: Length of outlet section after diffuser (m)
             n_x: Number of cells along domain
             n_y: Number of cells across height
-            n_wall: Number of wall-normal cells in boundary layer
+            bl_coef: Transfinite curve coefficient (<0 clusters toward floor, >0 toward ground)
             name: Mesh file name (without extension)
         """
         import gmsh
@@ -225,17 +228,20 @@ class MeshGenerator:
         x_outlet_start = x_diff_start + diffuser_length
         x_outlet = L_total
 
+        # Inlet height = ride height + small clearance (avoids extreme area ratios)
+        inlet_height = ride_height + inlet_clearance
+
         gmsh.initialize()
         gmsh.model.add(name)
 
         # Venturi floor profile function: y_floor(x)
         def floor_y(x):
             if x <= x_entry_start:
-                return domain_height
+                return inlet_height
             elif x <= x_throat_start:
                 t = (x - x_entry_start) / entry_length
                 smooth = t * t * (3 - 2 * t)
-                return domain_height - (domain_height - ride_height) * smooth
+                return inlet_height - (inlet_height - ride_height) * smooth
             elif x <= x_diff_start:
                 return ride_height
             elif x <= x_outlet_start:
@@ -269,7 +275,7 @@ class MeshGenerator:
             t = i / n_total
             x = x_inlet + t * (x_outlet - x_inlet)
             if x <= x_entry_start:
-                y = domain_height
+                y = inlet_height
             elif x <= x_outlet_start:
                 y = floor_y(x)
             else:
@@ -334,11 +340,11 @@ class MeshGenerator:
         for line in bottom_lines + top_lines + [inlet_line, outlet_line] + interior_lines:
             gmsh.model.mesh.setTransfiniteCurve(line, 2)
 
-        # Set number of divisions along y direction
-        for vline in [inlet_line, outlet_line]:
-            gmsh.model.mesh.setTransfiniteCurve(vline, n_y + 1)
-        for vline in interior_lines:
-            gmsh.model.mesh.setTransfiniteCurve(vline, n_y + 1)
+        # Set number of divisions along y direction with BL clustering
+        # bl_coef < 0 clusters toward floor (top wall, monitored for forces)
+        # bl_coef > 0 clusters toward ground (bottom wall)
+        for vline in [inlet_line, outlet_line] + interior_lines:
+            gmsh.model.mesh.setTransfiniteCurve(vline, n_y + 1, coef=bl_coef)
 
         # Set number of divisions along x direction
         for bline in bottom_lines:

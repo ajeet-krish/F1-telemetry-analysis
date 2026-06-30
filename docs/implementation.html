@@ -11,21 +11,34 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
-  <header class="site-header">
-    <div class="logo">F1 Aerodynamics</div>
-    <nav class="site-nav">
-      <a href="index.html">Home</a>
-      <a href="theory.html">Theory</a>
-      <a href="downforce.html"    >Downforce</a>
-      <a href="ride_height.html">Ride Height</a>
-      <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
-      <a href="track_setups.html">Track Setups</a>
-      <a href="cornering.html">Cornering</a>
-      <a href="strategy.html">Strategy</a>
-      <a href="cfd_venturi.html">CFD Venturi</a>
-      <a href="implementation.html" class="active">Code</a>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="sidebar-logo">F1 Aerodynamics</a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-heading">Analysis</div>
+        <a href="theory.html">Theory</a>
+        <a href="downforce.html">Downforce</a>
+        <a href="ride_height.html">Ride Height</a>
+        <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
+        <a href="track_setups.html">Track Setups</a>
+        <a href="cornering.html">Cornering</a>
+        <a href="strategy.html">Strategy</a>
+        <a href="powertrain.html">Powertrain &amp; Aero</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-heading">Validation</div>
+        <a href="cfd_venturi.html">CFD Venturi</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-heading">Reference</div>
+        <a href="implementation.html" class="active">Code</a>
+      </div>
     </nav>
-  </header>
+  </aside>
+
+  <div class="main-content">
 
   <main class="container">
     <div class="analysis-header">
@@ -208,10 +221,12 @@ if __name__ == "__main__":
       renderMathInElement(document.body, {
         delimiters: [
           {left: "$$", right: "$$", display: true},
-          {left: "$", right: "$", display: false}
+          {left: "$", right: "$", display: false},
+          {left: "\[", right: "\]", display: false}
         ]
       });
     });
   </script>
+  </div>
 </body>
 </html>

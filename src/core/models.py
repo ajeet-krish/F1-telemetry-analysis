@@ -370,6 +370,22 @@ class F1Car:
         self.rear_wing = RearWing()
         self.floor = Floor()
 
+    def ride_height_at_speed(self, velocity_ms: float) -> float:
+        """
+        Estimate ride height based on speed, accounting for
+        suspension compression from aerodynamic downforce.
+
+        As speed increases, downforce pushes the car lower, increasing
+        ground effect downforce from the floor. This creates a
+        speed-dependent aero balance that matches real F1 behavior.
+        """
+        rest_height = 0.075
+        spring_rate = 300000.0
+        motion_ratio = 0.5
+        total_df = self.total_downforce(velocity_ms)
+        compression = total_df / (spring_rate * motion_ratio)
+        return max(0.015, rest_height - compression)
+
     def total_downforce(
         self,
         velocity_ms: float,

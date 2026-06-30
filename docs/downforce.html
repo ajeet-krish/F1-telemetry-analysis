@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,188 +11,220 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
+
 <body>
-  <header class="site-header">
-    <div class="logo">F1 Aerodynamics</div>
-    <nav class="site-nav">
-      <a href="index.html">Home</a>
-      <a href="theory.html">Theory</a>
-      <a href="downforce.html" class="active"    >Downforce</a>
-      <a href="ride_height.html">Ride Height</a>
-      <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
-      <a href="track_setups.html">Track Setups</a>
-      <a href="cornering.html">Cornering</a>
-      <a href="strategy.html">Strategy</a>
-      <a href="cfd_venturi.html">CFD Venturi</a>
-      <a href="implementation.html">Code</a>
-    </nav>
-  </header>
-
-  <main class="container">
-    <div class="analysis-header">
-      <h1>Downforce Analysis</h1>
-      <p class="meta">Component breakdown, L/D polars, drag polar, aero balance</p>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="sidebar-logo">F1 Aerodynamics</a>
     </div>
-
-    <section class="section">
-      <h2>Why Downforce Matters</h2>
-      <p>
-        Downforce is the vertical aerodynamic force that pushes a Formula 1 car into the track,
-        increasing tire grip without adding mass. At 300 km/h, a modern F1 car generates enough
-        downforce to drive upside down on a ceiling. This force enables cornering speeds that
-        would be physically impossible through mechanical grip alone.
-      </p>
-      <p>
-        The challenge of F1 aerodynamics is balancing downforce generation against the inevitable
-        drag penalty. Every wing, every turning vane, and every millimeter of ride height represents
-        a tradeoff between cornering speed and straight-line velocity.
-      </p>
-    </section>
-
-    <section class="section">
-      <h2>Analytical Model</h2>
-      <p>
-        The car is modeled as four distinct aerodynamic components, each with their own
-        lift and drag characteristics:
-      </p>
-      <ul>
-        <li><strong>Front Wing</strong> -- Multi-element inverted airfoil (4 flaps), ground effect sensitive, manages front tire wake</li>
-        <li><strong>Rear Wing</strong> -- High-downforce inverted airfoil, DRS-capable, dominant drag contributor</li>
-        <li><strong>Floor (Diffuser)</strong> -- Venturi tunnel underbody, dominant downforce generator (47--76% depending on mode)</li>
-        <li><strong>Body</strong> -- Chassis, sidepods, engine cover -- primarily drag, minimal downforce contribution</li>
-      </ul>
-      <div class="equation">
-        $$L = C_L \cdot \frac{1}{2} \rho v^2 \cdot A \qquad D = C_D \cdot \frac{1}{2} \rho v^2 \cdot A$$
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-heading">Analysis</div>
+        <a href="theory.html">Theory</a>
+        <a href="downforce.html" class="active">Downforce</a>
+        <a href="ride_height.html">Ride Height</a>
+        <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
+        <a href="track_setups.html">Track Setups</a>
+        <a href="cornering.html">Cornering</a>
+        <a href="strategy.html">Strategy</a>
+        <a href="powertrain.html">Powertrain &amp; Aero</a>
       </div>
-      <p>
-        The drag polar follows the parabolic relationship:
-      </p>
-      <div class="equation">
-        $$C_D = C_{D0} + k \cdot C_L^2$$
+      <div class="nav-group">
+        <div class="nav-heading">Validation</div>
+        <a href="cfd_venturi.html">CFD Venturi</a>
       </div>
-      <p>
-        where \(k = 1/(\pi \cdot AR \cdot e)\) captures induced drag from the finite-span wing,
-        and \(C_{D0}\) is the zero-lift (profile + parasitic) drag.
-      </p>
-    </section>
-
-    <section class="section">
-      <h2>Component Breakdown</h2>
-      <p>
-        At low speeds, the floor generates the majority of downforce through the venturi
-        effect. As speed increases, the front and rear wings contribute proportionally more,
-        though the floor remains dominant throughout the speed range.
-      </p>
-      <div class="figure">
-        <img src="assets/images/downforce_component_breakdown.png" alt="Component breakdown stacked area chart">
-        <div class="caption">Downforce contribution by component across the speed range. The floor (amber) consistently dominates, followed by the rear wing (red) and front wing (teal).</div>
+      <div class="nav-group">
+        <div class="nav-heading">Reference</div>
+        <a href="implementation.html">Code</a>
       </div>
-    </section>
+    </nav>
+  </aside>
 
-    <section class="section">
-      <h2>L/D Ratio</h2>
-      <p>
-        The lift-to-drag ratio (L/D or aerodynamic efficiency) measures how much downforce
-        is generated per unit drag. Higher L/D means more cornering grip relative to
-        straight-line speed loss.
-      </p>
-      <div class="figure">
-        <img src="assets/images/downforce_ld_ratio.png" alt="L/D ratio vs speed">
-        <div class="caption">L/D ratio across the speed range for normal, DRS open, and low ride height configurations.</div>
+  <div class="main-content">
+
+    <main class="container">
+      <div class="analysis-header">
+        <h1>Downforce Analysis</h1>
+        <p class="meta">Component breakdown, L/D polars, drag polar, aero balance</p>
       </div>
-      <p>
-        Key observations:
-      </p>
-      <ul>
-        <li>L/D improves with speed as induced drag becomes a smaller fraction of total drag</li>
-        <li>DRS reduces L/D by ~40% (trading downforce for straight-line speed)</li>
-        <li>Low ride height (25mm) improves L/D by 12--18% through enhanced ground effect</li>
-      </ul>
-    </section>
 
-    <section class="section">
-      <h2>Drag Polar</h2>
-      <p>
-        The drag polar reveals the quadratic relationship between lift and drag. Each point
-        represents a different speed, sweeping from 60 km/h to 340 km/h.
-      </p>
-      <div class="figure">
-        <img src="assets/images/downforce_drag_polar.png" alt="Drag polar C_D vs C_L">
-        <div class="caption">Drag polar showing the parabolic C_D-C_L relationship. The quadratic fit confirms the induced drag model.</div>
-      </div>
-    </section>
+      <section class="section">
+        <h2>Why Downforce Matters</h2>
+        <p>
+          Downforce is the vertical aerodynamic force that pushes a Formula 1 car into the track,
+          increasing tire grip without adding mass. At 300 km/h, a modern F1 car generates enough
+          downforce to drive upside down on a ceiling. This force enables cornering speeds that
+          would be physically impossible through mechanical grip alone.
+        </p>
+        <p>
+          The challenge of F1 aerodynamics is balancing downforce generation against the inevitable
+          drag penalty. Every wing, every turning vane, and every millimeter of ride height represents
+          a tradeoff between cornering speed and straight-line velocity.
+        </p>
+      </section>
 
-    <section class="section">
-      <h2>Downforce vs Speed</h2>
-      <p>
-        Since downforce scales with \(v^2\), the force grows quadratically with speed.
-        At 300 km/h, total downforce exceeds 15 kN -- roughly 1.5 times the car's weight.
-      </p>
-      <div class="figure">
-        <img src="assets/images/downforce_vs_speed.png" alt="Downforce vs speed by component">
-        <div class="caption">Component and total downforce as a function of speed. The quadratic growth is clearly visible.</div>
-      </div>
-    </section>
+      <section class="section">
+        <h2>Analytical Model</h2>
+        <p>
+          The car is modeled as four distinct aerodynamic components, each with their own
+          lift and drag characteristics:
+        </p>
+        <ul>
+          <li><strong>Front Wing:</strong> Multi-element inverted airfoil (4 flaps), ground effect sensitive, manages
+            front tire wake</li>
+          <li><strong>Rear Wing:</strong> High-downforce inverted airfoil, DRS-capable, dominant drag contributor</li>
+          <li><strong>Floor (Diffuser):</strong> Venturi tunnel underbody, dominant downforce generator (47--76%
+            depending on mode)</li>
+          <li><strong>Body:</strong> Chassis, sidepods, engine cover -- primarily drag, minimal downforce contribution
+          </li>
+        </ul>
+        <div class="equation">
+          $$L = C_L \cdot \frac{1}{2} \rho v^2 \cdot A \qquad D = C_D \cdot \frac{1}{2} \rho v^2 \cdot A$$
+        </div>
+        <p>
+          The drag polar follows the parabolic relationship:
+        </p>
+        <div class="equation">
+          $$C_D = C_{D0} + k \cdot C_L^2$$
+        </div>
+        <p>
+          where \(k = 1/(\pi \cdot AR \cdot e)\) captures induced drag from the finite-span wing,
+          and \(C_{D0}\) is the zero-lift (profile + parasitic) drag.
+        </p>
+      </section>
 
-    <section class="section">
-      <h2>Aero Balance</h2>
-      <p>
-        Front aero balance (percentage of total downforce on the front axle) is critical
-        for vehicle handling. Understeer and oversteer tendencies change with speed as
-        the aero balance shifts.
-      </p>
-      <div class="figure">
-        <img src="assets/images/downforce_aero_balance.png" alt="Aero balance vs speed">
-        <div class="caption">Front aero balance percentage across the speed range. The dotted line shows the typical 40% target.</div>
-      </div>
-      <p>
-        The aero balance shifts rearward at higher speeds as the floor and rear wing become
-        proportionally more effective. This is a known challenge in F1 setup -- a car that
-        is balanced in slow corners may oversteer in fast corners.
-      </p>
-    </section>
+      <section class="section">
+        <h2>Component Breakdown</h2>
+        <p>
+          At low speeds, the floor generates the majority of downforce through the venturi
+          effect. As speed increases, the front and rear wings contribute proportionally more,
+          though the floor remains dominant throughout the speed range.
+        </p>
+        <div class="figure">
+          <img src="assets/images/downforce_component_breakdown.png" alt="Component breakdown stacked area chart">
+          <div class="caption">Downforce contribution by component across the speed range. The floor (amber)
+            consistently dominates, followed by the rear wing (red) and front wing (teal).</div>
+        </div>
+      </section>
 
-    <section class="key-findings">
-      <h3>Key Findings</h3>
-      <ul>
-        <li><strong>Floor dominance:</strong> The underbody venturi generates 47--76% of total downforce, consistent with published 2022+ ground effect era analysis.</li>
-        <li><strong>L/D range:</strong> Maximum aerodynamic efficiency of 4.5--5.5:1, comparable to published F1 car data at similar downforce levels.</li>
-        <li><strong>DRS penalty:</strong> Opening DRS reduces L/D by ~40%, justifying its use only on straights where top speed is paramount.</li>
-        <li><strong>Balance migration:</strong> Front aero balance shifts from ~38% at low speed to ~32% at high speed -- a 6% rearward migration.</li>
-        <li><strong>Quadratic growth:</strong> Downforce at 300 km/h is ~25x the downforce at 60 km/h (\(v^2\) scaling), confirming the dominant role of speed in aero performance.</li>
-      </ul>
-    </section>
+      <section class="section">
+        <h2>L/D Ratio</h2>
+        <p>
+          The lift-to-drag ratio (L/D or aerodynamic efficiency) measures how much downforce
+          is generated per unit drag. Higher L/D means more cornering grip relative to
+          straight-line speed loss.
+        </p>
+        <div class="figure">
+          <img src="assets/images/downforce_ld_ratio.png" alt="L/D ratio vs speed">
+          <div class="caption">L/D ratio across the speed range for normal, DRS open, and low ride height
+            configurations.</div>
+        </div>
+        <p>
+          Key observations:
+        </p>
+        <ul>
+          <li>L/D improves with speed as induced drag becomes a smaller fraction of total drag</li>
+          <li>DRS reduces L/D by ~40% (trading downforce for straight-line speed)</li>
+          <li>Low ride height (25mm) improves L/D by 12--18% through enhanced ground effect</li>
+        </ul>
+      </section>
 
-    <section class="limitations">
-      <h3>Limitations</h3>
-      <ul>
-        <li>Analytical models use idealized thin airfoil theory -- real multi-element wings exhibit nonlinear C_L-alpha behavior near stall.</li>
-        <li>Ground effect model is empirical (1/h + 1/h^2) rather than a full potential flow or CFD solution.</li>
-        <li>Y250 vortex, tire wake, and front wing-rear wing interaction effects are not modeled.</li>
-        <li>Drag polar assumes steady, clean airflow -- real wake turbulence and separation increase drag.</li>
-        <li>Component breakdown percentages are calibrated against published CFD, not proprietary team data.</li>
-        <li>Body drag is simplified -- cooling drag, suspension drag, and open-wheel drag are bundled into a single C_D value.</li>
-      </ul>
-    </section>
-  </main>
+      <section class="section">
+        <h2>Drag Polar</h2>
+        <p>
+          The drag polar reveals the quadratic relationship between lift and drag. Each point
+          represents a different speed, sweeping from 60 km/h to 340 km/h.
+        </p>
+        <div class="figure">
+          <img src="assets/images/downforce_drag_polar.png" alt="Drag polar C_D vs C_L">
+          <div class="caption">Drag polar showing the parabolic C_D-C_L relationship. The quadratic fit confirms the
+            induced drag model.</div>
+        </div>
+      </section>
 
-  <footer class="site-footer">
-    <p>F1 Aerodynamics Analysis &middot; Mercedes-inspired dark theme</p>
-  </footer>
+      <section class="section">
+        <h2>Downforce vs Speed</h2>
+        <p>
+          Since downforce scales with \(v^2\), the force grows quadratically with speed.
+          At 300 km/h, total downforce exceeds 15 kN -- roughly 1.5 times the car's weight.
+        </p>
+        <div class="figure">
+          <img src="assets/images/downforce_vs_speed.png" alt="Downforce vs speed by component">
+          <div class="caption">Component and total downforce as a function of speed. The quadratic growth is clearly
+            visible.</div>
+        </div>
+      </section>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      renderMathInElement(document.body, {
-        delimiters: [
-          {left: "$$", right: "$$", display: true},
-          {left: "$", right: "$", display: false}
-        ]
+      <section class="section">
+        <h2>Aero Balance</h2>
+        <p>
+          Front aero balance (percentage of total downforce on the front axle) is critical
+          for vehicle handling. Understeer and oversteer tendencies change with speed as
+          the aero balance shifts.
+        </p>
+        <div class="figure">
+          <img src="assets/images/downforce_aero_balance.png" alt="Aero balance vs speed">
+          <div class="caption">Front aero balance percentage across the speed range. The dotted line shows the typical
+            40% target.</div>
+        </div>
+        <p>
+          The aero balance shifts rearward at higher speeds as the floor and rear wing become
+          proportionally more effective. This is a known challenge in F1 setup -- a car that
+          is balanced in slow corners may oversteer in fast corners.
+        </p>
+      </section>
+
+      <section class="key-findings">
+        <h3>Key Findings</h3>
+        <ul>
+          <li><strong>Floor dominance:</strong> The underbody venturi generates 47--76% of total downforce, consistent
+            with published 2022+ ground effect era analysis.</li>
+          <li><strong>L/D range:</strong> Maximum aerodynamic efficiency of 4.5--5.5:1, comparable to published F1 car
+            data at similar downforce levels.</li>
+          <li><strong>DRS penalty:</strong> Opening DRS reduces L/D by ~40%, justifying its use only on straights where
+            top speed is paramount.</li>
+          <li><strong>Balance migration:</strong> Front aero balance shifts from ~38% at low speed to ~32% at high speed
+            -- a 6% rearward migration.</li>
+          <li><strong>Quadratic growth:</strong> Downforce at 300 km/h is ~25x the downforce at 60 km/h (\(v^2\)
+            scaling), confirming the dominant role of speed in aero performance.</li>
+        </ul>
+      </section>
+
+      <section class="limitations">
+        <h3>Limitations</h3>
+        <ul>
+          <li>Analytical models use idealized thin airfoil theory -- real multi-element wings exhibit nonlinear
+            C_L-alpha behavior near stall.</li>
+          <li>Ground effect model is empirical (1/h + 1/h^2) rather than a full potential flow or CFD solution.</li>
+          <li>Y250 vortex, tire wake, and front wing-rear wing interaction effects are not modeled.</li>
+          <li>Drag polar assumes steady, clean airflow -- real wake turbulence and separation increase drag.</li>
+          <li>Component breakdown percentages are calibrated against published CFD, not proprietary team data.</li>
+          <li>Body drag is simplified -- cooling drag, suspension drag, and open-wheel drag are bundled into a single
+            C_D value.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>F1 Aerodynamics Analysis &middot; Mercedes-inspired dark theme</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\[", right: "\]", display: false }
+          ]
+        });
       });
-    });
-  </script>
+    </script>
+  </div>
 </body>
+
 </html>

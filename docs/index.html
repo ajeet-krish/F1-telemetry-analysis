@@ -11,21 +11,34 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
-  <header class="site-header">
-    <div class="logo">F1 Aerodynamics</div>
-    <nav class="site-nav">
-      <a href="index.html" class="active">Home</a>
-      <a href="theory.html">Theory</a>
-      <a href="downforce.html"    >Downforce</a>
-      <a href="ride_height.html">Ride Height</a>
-      <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
-      <a href="track_setups.html">Track Setups</a>
-      <a href="cornering.html">Cornering</a>
-      <a href="strategy.html">Strategy</a>
-      <a href="cfd_venturi.html">CFD Venturi</a>
-      <a href="implementation.html">Code</a>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html" class="sidebar-logo">F1 Aerodynamics</a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-heading">Analysis</div>
+        <a href="theory.html">Theory</a>
+        <a href="downforce.html">Downforce</a>
+        <a href="ride_height.html">Ride Height</a>
+        <a href="drs_active_aero.html">DRS &amp; Active Aero</a>
+        <a href="track_setups.html">Track Setups</a>
+        <a href="cornering.html">Cornering</a>
+        <a href="strategy.html">Strategy</a>
+        <a href="powertrain.html">Powertrain &amp; Aero</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-heading">Validation</div>
+        <a href="cfd_venturi.html">CFD Venturi</a>
+      </div>
+      <div class="nav-group">
+        <div class="nav-heading">Reference</div>
+        <a href="implementation.html">Code</a>
+      </div>
     </nav>
-  </header>
+  </aside>
+
+  <div class="main-content">
 
   <section class="hero">
     <h1>F1 Aerodynamics Analysis</h1>
@@ -117,5 +130,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  </div>
 </body>
 </html>
