@@ -29,7 +29,7 @@ from src.core.style import (
 
 set_f1_style()
 
-ASSET_DIR = Path("docs/assets/images")
+ASSET_DIR = Path("docs/assets/images/ride_height")
 ASSET_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -86,7 +86,7 @@ def downforce_vs_ride_height(car: F1Car, save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "ride_height_downforce_curves.png"
+        path = ASSET_DIR / "downforce_curves.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -127,7 +127,7 @@ def cl_contour_map(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "ride_height_cl_contour.png"
+        path = ASSET_DIR / "cl_contour.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -185,7 +185,7 @@ def porpoising_stability_map(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "ride_height_porpoising_stability.png"
+        path = ASSET_DIR / "porpoising_stability.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -223,7 +223,7 @@ def aero_balance_ride_height(car: F1Car, save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "ride_height_aero_balance.png"
+        path = ASSET_DIR / "aero_balance.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -262,7 +262,7 @@ def ride_height_sensitivity(car: F1Car, save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "ride_height_sensitivity.png"
+        path = ASSET_DIR / "sensitivity.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -280,7 +280,7 @@ def run_all():
     aero_balance_ride_height(car)
     ride_height_sensitivity(car)
 
-    print("Done. Files saved to docs/assets/images/")
+    print("Done. Files saved to docs/assets/images/ride_height/")
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ Generates:
   - Validation scatter plot against published data
 """
 
+import argparse
 from pathlib import Path
 import json
 import numpy as np
@@ -30,10 +31,11 @@ from src.core.style import (
 )
 from src.core.physics import dynamic_pressure
 from src.cfd.su2_runner import SU2Config, SU2Solver, MeshGenerator, SU2Results
+from src.cfd.pyvista_viz import export_case1_all, export_sweep_visuals
 
 set_f1_style()
 
-ASSET_DIR = Path("docs/assets/images")
+ASSET_DIR = Path("docs/assets/images/cfd")
 ASSET_DIR.mkdir(parents=True, exist_ok=True)
 
 SU2_DIR = Path("su2_runs")
@@ -48,6 +50,16 @@ for d in [SU2_MESH_DIR, SU2_CFG_DIR, SU2_RESULT_DIR, SU2_SCRATCH_DIR]:
 AIR_DENSITY = 1.225
 AIR_VISCOSITY = 1.81e-5
 
+
+def export_case1_visuals():
+    """Export PyVista visuals for reference case 1."""
+    export_case1_all(ASSET_DIR, SU2_RESULT_DIR)
+
+def export_all_visuals():
+    """Export all PyVista visuals: Case 1 + Cases 2-4 sweep overlays."""
+    export_case1_visuals()
+    print("\n--- Cases 2-4: Sweep Comparison Visuals ---")
+    export_sweep_visuals(ASSET_DIR, SU2_RESULT_DIR)
 
 def _run_venturi(
     ride_height: float = 0.05,
@@ -176,7 +188,7 @@ def ride_height_sweep(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "cfd_venturi_ride_height_sweep.png"
+        path = ASSET_DIR / "ride_height_sweep.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -240,7 +252,7 @@ def diffuser_angle_sweep(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "cfd_venturi_diffuser_angle_sweep.png"
+        path = ASSET_DIR / "diffuser_angle_sweep.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -314,7 +326,7 @@ def velocity_sweep(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "cfd_venturi_velocity_sweep.png"
+        path = ASSET_DIR / "velocity_sweep.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -376,7 +388,7 @@ def mesh_validation(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "cfd_venturi_mesh_preview.png"
+        path = ASSET_DIR / "mesh_preview.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -388,7 +400,17 @@ def run_all():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--quick", action="store_true", help="Run mesh preview only (skip SU2)")
+    parser.add_argument("--export", action="store_true", help="Run PyVista Case 1 export")
+    parser.add_argument("--export-all", action="store_true", help="Run PyVista Case 1 + all sweep exports")
     args = parser.parse_args()
+
+    if args.export_all:
+        export_all_visuals()
+        return
+
+    if args.export:
+        export_case1_visuals()
+        return
 
     print("Generating CFD venturi analysis visuals...")
 
@@ -404,8 +426,7 @@ def run_all():
         print("\n--- Velocity Sweep ---")
         velocity_sweep()
 
-    print("Done. Files saved to docs/assets/images/")
-
+    print("Done. Files saved to docs/assets/images/cfd/")
 
 if __name__ == "__main__":
     run_all()

@@ -24,7 +24,7 @@ from src.core.physics import dynamic_pressure
 
 set_f1_style()
 
-ASSET_DIR = Path("docs/assets/images")
+ASSET_DIR = Path("docs/assets/images/cfd")
 ASSET_DIR.mkdir(parents=True, exist_ok=True)
 
 SU2_DIR = Path("su2_runs")
@@ -70,7 +70,7 @@ def validate_vs_analytical(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "cfd_venturi_validation.png"
+        path = ASSET_DIR / "validation.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -86,7 +86,7 @@ def plot_convergence(save: bool = True):
                 transform=ax.transAxes, ha="center", va="center",
                 color=MERCEDES_GRAY, fontsize=12)
         if save:
-            path = ASSET_DIR / "cfd_venturi_convergence.png"
+            path = ASSET_DIR / "convergence.png"
             fig.savefig(path)
             plt.close(fig)
         return fig
@@ -114,7 +114,7 @@ def plot_convergence(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "cfd_venturi_convergence.png"
+        path = ASSET_DIR / "convergence.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")

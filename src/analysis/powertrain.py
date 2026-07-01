@@ -26,7 +26,7 @@ from src.core.telemetry import TelemetryLoader
 
 set_f1_style()
 
-ASSET_DIR = Path("docs/assets/images")
+ASSET_DIR = Path("docs/assets/images/powertrain")
 ASSET_DIR.mkdir(parents=True, exist_ok=True)
 
 GEAR_COLORS = {
@@ -114,7 +114,7 @@ def v_squared_vs_rpm(telemetry, circuit_name: str, speed_limit: float = 30, save
     fig.tight_layout()
 
     if save:
-        fname = f"powertrain_vsq_vs_rpm_{circuit_name.lower().replace(' ', '_')}.png"
+        fname = f"vsq_vs_rpm_{circuit_name.lower().replace(' ', '_')}.png"
         path = ASSET_DIR / fname
         fig.savefig(path)
         plt.close(fig)
@@ -140,7 +140,7 @@ def run_all(save: bool = True):
     except Exception as e:
         print(f"  WARNING: Monaco failed ({e})")
 
-    print("Done. Files saved to docs/assets/images/")
+    print("Done. Files saved to docs/assets/images/powertrain/")
 
 
 if __name__ == "__main__":

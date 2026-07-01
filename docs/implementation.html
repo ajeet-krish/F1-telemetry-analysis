@@ -68,15 +68,21 @@
     track_setups.py  Monaco vs Monza telemetry comparison
     cornering.py     G-g diagram, corner radius estimation
     strategy.py      Tire delta, fuel correction, undercut
-    regulations_2026.py  Active straight, Z-mode, battery model
+    powertrain.py    v^2 vs RPM scatter, drag-limited regimes
+  viz/
+    interactive.py   Plotly JSON: sync track map + telemetry + 3D envelope
   cfd/
-    su2_runner.py    SU2Config, SU2Solver (adapted from Soccer CFD)
-    venturi.py       2D venturi with moving wall (planned)
+    su2_runner.py    SU2Config, SU2Solver, MeshGenerator
+    venturi.py       2D venturi with moving wall, sweep analysis
+    pyvista_viz.py   PyVista rendering: contours, streamlines, wall profiles
     validate.py      Validation against published data
 docs/
   *.html             Standalone pages with KaTeX + Prism.js
   css/style.css      Mercedes dark theme CSS
-  assets/images/     Generated PNG visuals</code></pre>
+  assets/images/     Per-section PNG visuals (section/subdir/*.png)
+  assets/data/       Plotly JSON for interactive visualizations
+runners/
+  *.py               One runner per analysis module + all.py + build_site.py</code></pre>
       </div>
     </section>
 
@@ -161,7 +167,7 @@ if __name__ == "__main__":
     run_all()</code></pre>
       </div>
       <p>
-        Runners save images to <code>docs/assets/images/</code> and are
+        Runners save images to section subdirs under <code>docs/assets/images/</code> and are
         idempotent (safe to re-run).
       </p>
     </section>
@@ -178,12 +184,16 @@ if __name__ == "__main__":
             </tr>
           </thead>
           <tbody>
-            <tr><td>downforce.py</td><td>Component breakdown, L/D, drag polar, speed scatter</td><td>Analytical model</td></tr>
-            <tr><td>ride_height.py</td><td>DF vs height, C_L contour, porpoising envelope, balance shift</td><td>Analytical model</td></tr>
-            <tr><td>drs.py</td><td>DRS drag polar, speed delta, overtaking advantage, telemetry trace</td><td>Analytical + FastF1</td></tr>
-            <tr><td>track_setups.py</td><td>Speed heatmaps, gear distribution, sector speeds, aero comparison</td><td>FastF1 + model</td></tr>
-            <tr><td>cornering.py</td><td>G-g diagram, speed-radius, grip envelope, corner classification</td><td>FastF1 + model</td></tr>
-            <tr><td>strategy.py</td><td>Tire delta, fuel correction, undercut, degradation, race pace</td><td>Analytical model</td></tr>
+            <tr><td>downforce.py</td><td>Component breakdown, L/D, drag polar, speed scatter, aero balance</td><td>Analytical model</td></tr>
+            <tr><td>ride_height.py</td><td>DF vs height, C_L contour, porpoising envelope, balance shift, sensitivity</td><td>Analytical model</td></tr>
+            <tr><td>drs.py</td><td>DRS drag polar, speed delta, overtaking advantage, telemetry trace, 2022 vs 2026</td><td>Analytical + FastF1</td></tr>
+            <tr><td>track_setups.py</td><td>Speed heatmaps, gear distribution, sector speeds, aero comparison, time delta</td><td>FastF1 + model</td></tr>
+            <tr><td>cornering.py</td><td>G-g diagram, speed-radius, grip envelope, corner classification, driver KDE</td><td>FastF1 + model</td></tr>
+            <tr><td>strategy.py</td><td>Tire delta, fuel correction, undercut, degradation, race pace, ridge plot</td><td>Analytical model</td></tr>
+            <tr><td>powertrain.py</td><td>v^2 vs RPM scatter (Monaco + Monza), drag/power-limited regimes</td><td>FastF1</td></tr>
+            <tr><td>interactive.py</td><td>Sync track map + telemetry traces, 3D performance envelope with driver dropdown</td><td>FastF1 + model</td></tr>
+            <tr><td>pyvista_viz.py</td><td>Velocity/Cp/vorticity/TKE/Mach contours, streamlines, wall profiles, sweep overlays</td><td>SU2 RANS VTU</td></tr>
+            <tr><td>venturi.py</td><td>Ride height/diffuser/velocity sweeps, mesh preview, validation scatter</td><td>SU2 RANS</td></tr>
           </tbody>
         </table>
       </div>
@@ -196,10 +206,23 @@ if __name__ == "__main__":
       </p>
       <ol>
         <li>Create <code>src/analysis/new_module.py</code> with a <code>run_all()</code> function</li>
-        <li>Create <code>run_new_module.py</code> that calls <code>run_all()</code></li>
+        <li>Create <code>runners/new_module.py</code> that calls <code>run_all()</code></li>
+        <li>Add to <code>runners/all.py</code> MODULES list</li>
         <li>Create <code>docs/new_module.html</code> referencing the images</li>
-        <li>Run <code>uv run python -m src.build_site</code> to sync nav</li>
+        <li>Run <code>uv run python -m runners.build_site</code> to sync nav</li>
       </ol>
+      <p>
+        To add interactive Plotly visualizations, create functions in
+        <code>src/viz/interactive.py</code> that write JSON to
+        <code>docs/assets/data/</code>, then load them in HTML via
+        Plotly.js CDN <code>fetch()</code> calls.
+      </p>
+      <p>
+        For CFD PyVista rendering, add functions to
+        <code>src/cfd/pyvista_viz.py</code> and wire them into
+        the <code>export_case1_all</code> or <code>export_sweep_visuals</code>
+        entry points.
+      </p>
       <p>
         The <code>F1Car</code> model can be extended with new components
         (diffuser, bargeboards, T-tray) by adding dataclass configs and

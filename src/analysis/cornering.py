@@ -36,7 +36,7 @@ from src.core.telemetry import TelemetryLoader
 
 set_f1_style()
 
-ASSET_DIR = Path("docs/assets/images")
+ASSET_DIR = Path("docs/assets/images/cornering")
 ASSET_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -124,7 +124,7 @@ def gg_diagram(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "cornering_gg_diagram.png"
+        path = ASSET_DIR / "gg_diagram.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -197,7 +197,7 @@ def speed_vs_corner_radius(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "cornering_speed_radius.png"
+        path = ASSET_DIR / "speed_radius.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -258,7 +258,7 @@ def downforce_grip_envelope(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "cornering_grip_envelope.png"
+        path = ASSET_DIR / "grip_envelope.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -348,7 +348,7 @@ def corner_classification(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "cornering_classification.png"
+        path = ASSET_DIR / "classification.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -471,7 +471,7 @@ def driver_kde_comparison(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "cornering_driver_kde.png"
+        path = ASSET_DIR / "driver_kde.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -486,7 +486,7 @@ def run_all():
     downforce_grip_envelope()
     corner_classification()
     driver_kde_comparison()
-    print("Done. Files saved to docs/assets/images/")
+    print("Done. Files saved to docs/assets/images/cornering/")
 
 
 if __name__ == "__main__":

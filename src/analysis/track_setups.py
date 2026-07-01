@@ -36,7 +36,7 @@ from src.core.telemetry import TelemetryLoader
 
 set_f1_style()
 
-ASSET_DIR = Path("docs/assets/images")
+ASSET_DIR = Path("docs/assets/images/track_setups")
 ASSET_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -113,7 +113,7 @@ def speed_on_track_map(save: bool = True):
     fig.subplots_adjust(left=0.02, right=0.98, bottom=0.08, top=0.95, wspace=0.05, hspace=0.15)
 
     if save:
-        path = ASSET_DIR / "track_setups_speed_on_track.png"
+        path = ASSET_DIR / "speed_on_track.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -159,7 +159,7 @@ def gear_distribution(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "track_setups_gear_distribution.png"
+        path = ASSET_DIR / "gear_distribution.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -208,7 +208,7 @@ def sector_speed_comparison(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "track_setups_sector_speeds.png"
+        path = ASSET_DIR / "sector_speeds.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -266,7 +266,7 @@ def aero_setup_comparison(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "track_setups_aero_comparison.png"
+        path = ASSET_DIR / "aero_comparison.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -302,7 +302,7 @@ def speed_profile_comparison(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "track_setups_speed_profile.png"
+        path = ASSET_DIR / "speed_profile.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -396,7 +396,7 @@ def driver_time_delta_map(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "track_setups_time_delta_map.png"
+        path = ASSET_DIR / "time_delta_map.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -412,7 +412,7 @@ def run_all():
     aero_setup_comparison()
     speed_profile_comparison()
     driver_time_delta_map()
-    print("Done. Files saved to docs/assets/images/")
+    print("Done. Files saved to docs/assets/images/track_setups/")
 
 
 if __name__ == "__main__":

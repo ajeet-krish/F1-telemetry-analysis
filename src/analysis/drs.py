@@ -32,7 +32,7 @@ from src.core.telemetry import TelemetryLoader
 
 set_f1_style()
 
-ASSET_DIR = Path("docs/assets/images")
+ASSET_DIR = Path("docs/assets/images/drs")
 ASSET_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -111,7 +111,7 @@ def drs_drag_polar_car(car: F1Car, save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "drs_drag_polar.png"
+        path = ASSET_DIR / "drag_polar.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -159,7 +159,7 @@ def drs_speed_delta(car: F1Car, save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "drs_speed_delta.png"
+        path = ASSET_DIR / "speed_delta.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -206,7 +206,7 @@ def drs_overtaking_analysis(car: F1Car, save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "drs_overtaking_advantage.png"
+        path = ASSET_DIR / "overtaking_advantage.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -257,7 +257,7 @@ def drs_telemetry_trace(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "drs_telemetry_trace.png"
+        path = ASSET_DIR / "telemetry_trace.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -333,7 +333,7 @@ def active_aero_2026_comparison(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "drs_2022_vs_2026.png"
+        path = ASSET_DIR / "2022_vs_2026.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -351,7 +351,7 @@ def run_all():
     drs_telemetry_trace()
     active_aero_2026_comparison()
 
-    print("Done. Files saved to docs/assets/images/")
+    print("Done. Files saved to docs/assets/images/drs/")
 
 
 if __name__ == "__main__":

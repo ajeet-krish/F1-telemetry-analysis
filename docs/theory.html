@@ -94,6 +94,40 @@
           This parabolic drag polar is fundamental to understanding the
           downforce-drag tradeoff in F1.
         </p>
+        <div class="gallery">
+          <figure>
+            <img src="assets/images/downforce/drag_polar.png" alt="Drag polar - CD vs CL" loading="lazy">
+            <figcaption>Drag polar from the analytical F1 car model combined with FastF1 telemetry data points. L/D contour lines highlight the efficiency tradeoff: generating more downforce (higher |C<sub>L</sub>|) inevitably increases drag.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/images/downforce/ld_ratio.png" alt="L/D ratio vs speed" loading="lazy">
+            <figcaption>Lift-to-drag ratio across the speed range for normal, DRS-open, and low ride height configurations. The L/D ratio degrades at low speed (induced drag dominance) and improves at high speed.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Downforce Component Breakdown</h2>
+        <p>
+          An F1 car generates downforce through three primary aerodynamic
+          surfaces: the front wing, rear wing, and floor (undertray). The body
+          (chassis and sidepods) contributes a small amount of downforce but
+          is primarily a drag source. The <code>F1Car</code> analytical model
+          combines blade element theory, thin airfoil theory, and empirical
+          ground effect coefficients to predict the downforce distribution.
+        </p>
+        <figure>
+          <img src="assets/images/downforce/component_breakdown.png" alt="Downforce component breakdown vs speed" loading="lazy">
+          <figcaption>Component percentage breakdown showing that the floor dominates at all speeds (50-60%), followed by the front wing (25-30%) and rear wing (15-20%). The distribution shifts with speed as ride height changes.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/images/downforce/vs_speed.png" alt="Downforce vs speed by component" loading="lazy">
+          <figcaption>Absolute downforce per component. All components scale quadratically with speed ($F \propto v^2$), but the floor's ground effect amplifies its contribution disproportionately as speed increases.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/images/downforce/aero_balance.png" alt="Aero balance shift vs speed" loading="lazy">
+          <figcaption>Front aero balance percentage across the speed range. The front wing contribution drops slightly at higher speeds as the floor generates proportionally more downforce, shifting the aerodynamic balance rearward.</figcaption>
+        </figure>
       </section>
 
       <section class="section">
@@ -113,6 +147,20 @@
           downforce itself pushes the car down until the flow stalls, causing the
           ride height to rebound.
         </p>
+        <div class="gallery">
+          <figure>
+            <img src="assets/images/ride_height/downforce_curves.png" alt="Floor downforce vs ride height" loading="lazy">
+            <figcaption>Floor downforce as a function of ride height at four fixed speeds. Below ~20 mm, venturi stall causes a sudden loss of downforce -- this is the porpoising trigger. The red shaded zone marks the porpoising risk region.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/images/ride_height/cl_contour.png" alt="Ground effect CL contour map" loading="lazy">
+            <figcaption>Contour map of |C<sub>L</sub>| across the (ride height, speed) space. The strongest downforce occurs at low ride height and high speed. The dashed red line marks the venturi stall threshold at ~20 mm.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/images/ride_height/porpoising_stability.png" alt="Porpoising stability gradient map" loading="lazy">
+            <figcaption>d|C<sub>L</sub>|/dh gradient map showing porpoising stability. Negative gradients (red) indicate strong suck-down where the car is pulled closer to the ground, creating the porpoising oscillation cycle.</figcaption>
+          </figure>
+        </div>
       </section>
 
       <section class="section">

@@ -38,7 +38,7 @@ from src.core.telemetry import TelemetryLoader
 
 set_f1_style()
 
-ASSET_DIR = Path("docs/assets/images")
+ASSET_DIR = Path("docs/assets/images/strategy")
 ASSET_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -76,7 +76,7 @@ def tire_compound_delta(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "strategy_tire_delta.png"
+        path = ASSET_DIR / "tire_delta.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -120,7 +120,7 @@ def fuel_correction(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "strategy_fuel_correction.png"
+        path = ASSET_DIR / "fuel_correction.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -182,7 +182,7 @@ def undercut_simulation(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "strategy_undercut.png"
+        path = ASSET_DIR / "undercut.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -216,7 +216,7 @@ def tire_degradation(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "strategy_tire_degradation.png"
+        path = ASSET_DIR / "tire_degradation.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -319,7 +319,7 @@ def race_pace_projection(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "strategy_race_pace.png"
+        path = ASSET_DIR / "race_pace.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -396,7 +396,7 @@ def tire_ridge_plot(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "strategy_tire_ridge.png"
+        path = ASSET_DIR / "tire_ridge.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -412,7 +412,7 @@ def run_all():
     tire_degradation()
     race_pace_projection()
     tire_ridge_plot()
-    print("Done. Files saved to docs/assets/images/")
+    print("Done. Files saved to docs/assets/images/strategy/")
 
 
 if __name__ == "__main__":

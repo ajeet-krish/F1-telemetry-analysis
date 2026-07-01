@@ -22,7 +22,7 @@ from src.core.telemetry import TelemetryLoader
 
 set_f1_style()
 
-ASSET_DIR = Path("docs/assets/images")
+ASSET_DIR = Path("docs/assets/images/downforce")
 ASSET_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -69,7 +69,7 @@ def component_breakdown_chart(car: F1Car, save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "downforce_component_breakdown.png"
+        path = ASSET_DIR / "component_breakdown.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -103,7 +103,7 @@ def ld_ratio_curve(car: F1Car, save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "downforce_ld_ratio.png"
+        path = ASSET_DIR / "ld_ratio.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -185,7 +185,7 @@ def drag_polar(car: F1Car, save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "downforce_drag_polar.png"
+        path = ASSET_DIR / "drag_polar.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -228,7 +228,7 @@ def speed_vs_downforce(car: F1Car, save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "downforce_vs_speed.png"
+        path = ASSET_DIR / "vs_speed.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -266,7 +266,7 @@ def aero_balance_chart(car: F1Car, save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "downforce_aero_balance.png"
+        path = ASSET_DIR / "aero_balance.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -284,7 +284,7 @@ def run_all():
     speed_vs_downforce(car)
     aero_balance_chart(car)
 
-    print("Done. Files saved to docs/assets/images/")
+    print("Done. Files saved to docs/assets/images/downforce/")
 
 
 if __name__ == "__main__":

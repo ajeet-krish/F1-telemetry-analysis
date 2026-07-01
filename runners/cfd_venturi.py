@@ -1,8 +1,10 @@
 """Runner for CFD venturi analysis.
 
 Usage:
-    uv run python -m runners.cfd_venturi            # full simulation
-    uv run python -m runners.cfd_venturi --quick    # mesh preview only
+    uv run python -m runners.cfd_venturi               # full simulation + validation
+    uv run python -m runners.cfd_venturi --quick       # mesh preview only
+    uv run python -m runners.cfd_venturi --export      # PyVista Case 1 export
+    uv run python -m runners.cfd_venturi --export-all  # PyVista Case 1 + sweep overlays
 """
 
 import sys
@@ -23,6 +25,14 @@ def run_mesh_preview():
 if __name__ == "__main__":
     if "--quick" in sys.argv:
         run_mesh_preview()
+    elif "--export-all" in sys.argv:
+        import sys as _sys
+        _sys.argv = [_sys.argv[0], "--export-all"]
+        run_all()
+    elif "--export" in sys.argv:
+        import sys as _sys
+        _sys.argv = [_sys.argv[0], "--export"]
+        run_all()
     else:
         run_all()
         run_validate()
