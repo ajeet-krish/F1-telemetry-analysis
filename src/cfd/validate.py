@@ -79,6 +79,9 @@ def validate_vs_analytical(save: bool = True):
 
 def plot_convergence(save: bool = True):
     """Plot convergence history if available."""
+    case1_dir = ASSET_DIR / "case1"
+    case1_dir.mkdir(parents=True, exist_ok=True)
+
     result_dirs = sorted(SU2_RESULT_DIR.iterdir()) if SU2_RESULT_DIR.exists() else []
     if not result_dirs:
         fig, ax = plt.subplots(figsize=(10, 5))
@@ -86,7 +89,7 @@ def plot_convergence(save: bool = True):
                 transform=ax.transAxes, ha="center", va="center",
                 color=MERCEDES_GRAY, fontsize=12)
         if save:
-            path = ASSET_DIR / "convergence.png"
+            path = case1_dir / "convergence.png"
             fig.savefig(path)
             plt.close(fig)
         return fig
@@ -114,7 +117,7 @@ def plot_convergence(save: bool = True):
         label.set(color=MERCEDES_GRAY)
 
     if save:
-        path = ASSET_DIR / "convergence.png"
+        path = case1_dir / "convergence.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")

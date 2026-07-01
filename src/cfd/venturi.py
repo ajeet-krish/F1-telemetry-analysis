@@ -67,6 +67,8 @@ def _run_venturi(
     velocity_ms: float = 60.0,
     timeout: int = 600,
     label: str = "",
+    iterations: int = 4000,
+    cfl_number: float = 0.3,
 ) -> tuple[SU2Results, Path, Path]:
     """Run a single venturi simulation and return results."""
     Re = AIR_DENSITY * velocity_ms * ride_height / AIR_VISCOSITY
@@ -93,8 +95,8 @@ def _run_venturi(
         solver="INC_RANS",
         turbulence_model="SST",
         inc_velocity_init=(velocity_ms, 0.0, 0.0),
-        cfl_number=0.3,
-        iterations=4000,
+        cfl_number=cfl_number,
+        iterations=iterations,
         conv_residual_minval=-8,
         screen_output="WARNING",
         marker_walls=("floor", "ground"),
@@ -188,7 +190,9 @@ def ride_height_sweep(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "ride_height_sweep.png"
+        case2_dir = ASSET_DIR / "case2"
+        case2_dir.mkdir(parents=True, exist_ok=True)
+        path = case2_dir / "ride_height_sweep.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -252,7 +256,9 @@ def diffuser_angle_sweep(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "diffuser_angle_sweep.png"
+        case3_dir = ASSET_DIR / "case3"
+        case3_dir.mkdir(parents=True, exist_ok=True)
+        path = case3_dir / "diffuser_angle_sweep.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -261,7 +267,7 @@ def diffuser_angle_sweep(save: bool = True):
 
 def velocity_sweep(save: bool = True):
     """Sweep velocity and plot CL vs Re."""
-    velocities = [40, 50, 60, 70, 80]
+    velocities = [50, 65, 80, 92, 100]
     ride_height = 0.050
     diffuser_angle = 17.0
 
@@ -275,6 +281,8 @@ def velocity_sweep(save: bool = True):
                 velocity_ms=v,
                 timeout=600,
                 label=f"v{v:.0f}",
+                iterations=2000,
+                cfl_number=0.5,
             )
             Re = AIR_DENSITY * v * ride_height / AIR_VISCOSITY
             results[f"v{v:.0f}"] = {
@@ -326,7 +334,9 @@ def velocity_sweep(save: bool = True):
     fig.tight_layout()
 
     if save:
-        path = ASSET_DIR / "velocity_sweep.png"
+        case4_dir = ASSET_DIR / "case4"
+        case4_dir.mkdir(parents=True, exist_ok=True)
+        path = case4_dir / "velocity_sweep.png"
         fig.savefig(path)
         plt.close(fig)
         print(f"  Saved {path}")
@@ -426,7 +436,7 @@ def run_all():
         print("\n--- Velocity Sweep ---")
         velocity_sweep()
 
-    print("Done. Files saved to docs/assets/images/cfd/")
+    print("Done. Files saved to docs/assets/images/cfd/{case1,case2,case3,case4}/")
 
 if __name__ == "__main__":
     run_all()

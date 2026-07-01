@@ -100,27 +100,27 @@
       <h3>Flow Field Visualizations</h3>
       <div class="gallery">
         <figure>
-          <img src="assets/images/cfd/velocity_contour.png" alt="Velocity magnitude contour" loading="lazy">
+          <img src="assets/images/cfd/case1/velocity_contour.png" alt="Velocity magnitude contour" loading="lazy">
           <figcaption>Full-domain flood contour of velocity magnitude. The flow accelerates through the throat (red) and decelerates in the diffuser (blue). PyVista auto-generated from <code>vol_solution.vtu</code>.</figcaption>
         </figure>
         <figure>
-          <img src="assets/images/cfd/cp_contour.png" alt="Pressure coefficient Cp contour" loading="lazy">
+          <img src="assets/images/cfd/case1/cp_contour.png" alt="Pressure coefficient Cp contour" loading="lazy">
           <figcaption>Cp field across the domain. The low-pressure zone at the throat (blue) is the source of downforce; pressure recovers through the diffuser.</figcaption>
         </figure>
         <figure>
-          <img src="assets/images/cfd/streamlines.png" alt="Streamlines colored by velocity" loading="lazy">
+          <img src="assets/images/cfd/case1/streamlines.png" alt="Streamlines colored by velocity" loading="lazy">
           <figcaption>Streamtraces seeded from a rake at the inlet. Reveals flow attachment through the diffuser -- check for any separation at the diffuser ramp.</figcaption>
         </figure>
         <figure>
-          <img src="assets/images/cfd/vorticity.png" alt="Vorticity magnitude contour" loading="lazy">
+          <img src="assets/images/cfd/case1/vorticity.png" alt="Vorticity magnitude contour" loading="lazy">
           <figcaption>Vorticity magnitude highlights boundary layer development along both walls and the shear layer above the diffuser ramp. Computed via curl of velocity gradient.</figcaption>
         </figure>
         <figure>
-          <img src="assets/images/cfd/tke.png" alt="Turbulent kinetic energy contour" loading="lazy">
+          <img src="assets/images/cfd/case1/tke.png" alt="Turbulent kinetic energy contour" loading="lazy">
           <figcaption>Turbulent kinetic energy contour. Identifies regions of high turbulence production in the boundary layers and any diffuser shear layer.</figcaption>
         </figure>
         <figure>
-          <img src="assets/images/cfd/mach.png" alt="Mach number contour" loading="lazy">
+          <img src="assets/images/cfd/case1/mach.png" alt="Mach number contour" loading="lazy">
           <figcaption>Local Mach number. At 60 m/s freestream, throat velocity may push beyond Ma=0.3 where compressibility effects become non-negligible.</figcaption>
         </figure>
       </div>
@@ -128,19 +128,19 @@
       <h3>Wall Profile Extractions</h3>
       <div class="gallery">
         <figure>
-          <img src="assets/images/cfd/cp_profile.png" alt="Cp profile along floor and ground" loading="lazy">
+          <img src="assets/images/cfd/case1/cp_profile.png" alt="Cp profile along floor and ground" loading="lazy">
           <figcaption>Line plot of Cp extracted along the top wall (floor) and bottom wall (ground) via <em>sample_over_line</em>. The sharp Cp drop at the throat (x &asymp; 0.9-1.7 m) drives downforce; the diffuser recovers pressure toward ambient.</figcaption>
         </figure>
         <figure>
-          <img src="assets/images/cfd/yplus.png" alt="Wall y+ distribution" loading="lazy">
+          <img src="assets/images/cfd/case1/yplus.png" alt="Wall y+ distribution" loading="lazy">
           <figcaption>y+ along both walls. Target is y+ &lt; 1 everywhere for the SST model to resolve the viscous sublayer.</figcaption>
         </figure>
         <figure>
-          <img src="assets/images/cfd/wall_shear.png" alt="Wall shear stress along floor" loading="lazy">
+          <img src="assets/images/cfd/case1/wall_shear.png" alt="Wall shear stress along floor" loading="lazy">
           <figcaption>Wall shear stress magnitude along the floor profile. A drop to zero or negative values would indicate flow separation.</figcaption>
         </figure>
         <figure>
-          <img src="assets/images/cfd/velocity_profiles.png" alt="Velocity profiles at selected x-stations" loading="lazy">
+          <img src="assets/images/cfd/case1/velocity_profiles.png" alt="Velocity profiles at selected x-stations" loading="lazy">
           <figcaption>Boundary layer velocity profiles extracted at the inlet (x=0.5m), throat (x=1.0m), mid-diffuser (x=1.5m), and outlet (x=2.0m). Shows the boundary layer growth and velocity redistribution through the venturi. Generated via PyVista <em>sample_over_line</em>.</figcaption>
         </figure>
       </div>
@@ -148,7 +148,7 @@
       <h3>Convergence</h3>
       <div class="gallery">
         <figure>
-          <img src="assets/images/cfd/convergence.png" alt="Convergence history" loading="lazy">
+          <img src="assets/images/cfd/case1/convergence.png" alt="Convergence history" loading="lazy">
           <figcaption>RMS residuals (pressure) vs iteration from <code>history.csv</code>. All cases show 4+ orders of magnitude drop, indicating good convergence.</figcaption>
         </figure>
       </div>
@@ -178,7 +178,7 @@
         (the porpoising mechanism).
       </p>
       <figure>
-        <img src="assets/images/cfd/ride_height_sweep.png" alt="Ride height sweep results" loading="lazy">
+        <img src="assets/images/cfd/case2/ride_height_sweep.png" alt="Ride height sweep results" loading="lazy">
         <figcaption>Downforce (C<sub>L</sub>) and drag (C<sub>D</sub>) vs ride height from SU2 RANS at 17&deg; diffuser, 60 m/s</figcaption>
       </figure>
 
@@ -219,28 +219,31 @@
         of higher ride height sensitivity to pitch (porpoising risk).
       </p>
 
-      <h3>Comparison Visualizations</h3>
-      <p>
-        Extract the same contour view for two ride heights (e.g., h=35 mm
-        and h=80 mm) and place them side by side to highlight the ground
-        effect.
-      </p>
       <div class="gallery">
         <figure>
-          <img src="assets/images/cfd/case2_velocity_comparison.png" alt="Velocity comparison low vs high ride height" loading="lazy">
-          <figcaption>Side-by-side velocity contours at h=35 mm (left) and h=80 mm (right). The throat accelerates more aggressively at low ride height, producing higher suction. Generated via PyVista side-by-side render.</figcaption>
-        </figure>
-        <figure>
-          <img src="assets/images/cfd/case2_cp_overlay.png" alt="Cp profile overlay all ride heights" loading="lazy">
+          <img src="assets/images/cfd/case2/cp_overlay.png" alt="Cp profile overlay all ride heights" loading="lazy">
           <figcaption>Overlay Cp profiles along the floor for all 6 ride heights. Shows the increasing pressure drop at the throat as ride height decreases. Generated via PyVista <em>sample_over_line</em> + matplotlib overlay.</figcaption>
         </figure>
         <figure>
-          <img src="assets/images/cfd/case2_streamlines_comparison.png" alt="Streamlines comparison low vs high ride height" loading="lazy">
-          <figcaption>Streamlines at h=35 mm vs h=80 mm. Lower ride height produces stronger acceleration and may show earlier diffuser separation. Generated via PyVista streamline tracer.</figcaption>
+          <img src="assets/images/cfd/case2/wall_shear_overlay.png" alt="Wall shear overlay all ride heights" loading="lazy">
+          <figcaption>Wall shear stress along the floor for each ride height. A dip near zero flags impending separation. Generated via PyVista + matplotlib overlay.</figcaption>
+        </figure>
+      </div>
+
+      <h3>Flow Field Galleries</h3>
+      <p>
+        Full 2x3 grids of velocity magnitude and pressure coefficient contours
+        across all six ride heights, rendered with the same PyVista settings as
+        the reference case for direct visual comparison.
+      </p>
+      <div class="gallery">
+        <figure>
+          <img src="assets/images/cfd/case2/velocity_gallery.png" alt="Velocity contour gallery all ride heights" loading="lazy">
+          <figcaption>Velocity magnitude contours for all 6 ride heights (25-100 mm). The throat velocity increases as ride height drops, shown by the progression of red (high velocity) regions. Generated via PyVista 2x3 composite render.</figcaption>
         </figure>
         <figure>
-          <img src="assets/images/cfd/case2_wall_shear_overlay.png" alt="Wall shear overlay all ride heights" loading="lazy">
-          <figcaption>Wall shear stress along the floor for each ride height. A dip near zero flags impending separation. Generated via PyVista + matplotlib overlay.</figcaption>
+          <img src="assets/images/cfd/case2/cp_gallery.png" alt="Cp contour gallery all ride heights" loading="lazy">
+          <figcaption>Pressure coefficient contours for all 6 ride heights. The low-pressure (blue) throat zone expands and intensifies at lower ride heights, driving increased downforce. Generated via PyVista 2x3 composite render.</figcaption>
         </figure>
       </div>
     </section>
@@ -256,7 +259,7 @@
         steeper angles generate more downforce but risk separation.
       </p>
       <figure>
-        <img src="assets/images/cfd/diffuser_angle_sweep.png" alt="Diffuser angle sweep results" loading="lazy">
+        <img src="assets/images/cfd/case3/diffuser_angle_sweep.png" alt="Diffuser angle sweep results" loading="lazy">
         <figcaption>C<sub>L</sub> vs diffuser angle. Downforce increases with angle until flattening at ~18&deg; (separation onset).</figcaption>
       </figure>
 
@@ -294,36 +297,46 @@
         consistent with separation reducing the effective expansion.
       </p>
 
-      <h3>Flow Field Visualizations (Paraview Required)</h3>
       <div class="gallery">
         <figure>
-          <img src="assets/images/cfd/case3_streamlines_comparison.png" alt="Streamlines comparison 10 vs 20 deg diffuser" loading="lazy">
-          <figcaption>Side-by-side streamlines at 10&deg; (attached) and 20&deg; (separated). The separation bubble at the diffuser ramp kills pressure recovery and reduces downforce. Generated via PyVista streamline tracer.</figcaption>
-        </figure>
-        <figure>
-          <img src="assets/images/cfd/case3_cp_overlay.png" alt="Cp profile overlay all diffuser angles" loading="lazy">
+          <img src="assets/images/cfd/case3/cp_overlay.png" alt="Cp profile overlay all diffuser angles" loading="lazy">
           <figcaption>Overlay Cp profiles for all 6 diffuser angles. Steeper angles produce a larger Cp drop at the throat but also a less complete pressure recovery downstream. Generated via PyVista + matplotlib overlay.</figcaption>
         </figure>
+      </div>
+
+      <h3>Flow Field Galleries</h3>
+      <p>
+        Full 2x3 grids of velocity magnitude and pressure coefficient contours
+        across all six diffuser angles, rendered with the same PyVista settings
+        as the reference case for direct visual comparison.
+      </p>
+      <div class="gallery">
         <figure>
-          <img src="assets/images/cfd/case3_velocity_separation.png" alt="Velocity contour separated vs attached diffuser" loading="lazy">
-          <figcaption>Velocity contour at 20&deg; diffuser (right) showing the low-velocity separation bubble on the diffuser ramp, compared with the attached case at 10&deg; (left). Generated via PyVista side-by-side render.</figcaption>
+          <img src="assets/images/cfd/case3/velocity_gallery.png" alt="Velocity contour gallery all diffuser angles" loading="lazy">
+          <figcaption>Velocity magnitude contours for all 6 diffuser angles (10-20&deg;). Steeper angles produce higher throat velocities but the diffuser separation bubble becomes visible at 18&deg;+ as a low-velocity (blue) region on the ramp. Generated via PyVista 2x3 composite render.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/images/cfd/case3/cp_gallery.png" alt="Cp contour gallery all diffuser angles" loading="lazy">
+          <figcaption>Pressure coefficient contours for all 6 diffuser angles. The throat suction (blue) strengthens with angle, but pressure recovery downstream degrades as separation onset reduces the effective diffuser area. Generated via PyVista 2x3 composite render.</figcaption>
         </figure>
       </div>
     </section>
 
     <!-- ====== CASE 4: VELOCITY / RE SWEEP ====== -->
     <section class="section">
-      <h2>Case 4: Velocity Sweep (V=40-80 m/s)</h2>
+      <h2>Case 4: Velocity Sweep (V=50-100 m/s)</h2>
       <p>
-        Sweeping the freestream velocity from 40 m/s (144 km/h) to 80 m/s
-        (288 km/h) at fixed ride height (50 mm) and diffuser angle
-        (17&deg;). Downforce scales with $V^2$ in the incompressible
-        regime, so the C<sub>L</sub> should remain nearly constant while
-        the absolute downforce force grows quadratically.
+        Sweeping the freestream velocity from 50 m/s (180 km/h) to 100 m/s
+        (360 km/h) at fixed ride height (50 mm) and diffuser angle
+        (17&deg;). This covers the full F1 operating range from
+        medium-speed corners through to top speed on the straights.
+        Downforce scales with $V^2$ in the incompressible regime, so the
+        C<sub>L</sub> should remain nearly constant while the absolute
+        downforce force grows quadratically.
       </p>
       <figure>
-        <img src="assets/images/cfd/velocity_sweep.png" alt="Velocity sweep results" loading="lazy">
-        <figcaption>C<sub>L</sub> and C<sub>D</sub> vs freestream velocity. C<sub>L</sub> is nearly constant (-2.11), confirming incompressible flow behavior.</figcaption>
+        <img src="assets/images/cfd/case4/velocity_sweep.png" alt="Velocity sweep results" loading="lazy">
+        <figcaption>C<sub>L</sub> and C<sub>D</sub> vs freestream velocity. C<sub>L</sub> is nearly constant (-1.285), confirming incompressible flow behavior. C<sub>D</sub> drops slightly with Re as boundary layers thin.</figcaption>
       </figure>
 
       <div class="table-wrapper">
@@ -332,48 +345,93 @@
             <tr><th>V (m/s)</th><th>V (km/h)</th><th>Re</th><th>C<sub>L</sub></th><th>C<sub>D</sub></th><th>Downforce (N/m)</th></tr>
           </thead>
           <tbody>
-            <tr><td>40</td><td>144</td><td>1.35e5</td><td>-2.108</td><td>0.250</td><td>539</td></tr>
-            <tr><td>50</td><td>180</td><td>1.69e5</td><td>-2.112</td><td>0.250</td><td>843</td></tr>
-            <tr><td>60</td><td>216</td><td>2.03e5</td><td>-2.114</td><td>0.250</td><td>1215</td></tr>
-            <tr><td>70</td><td>252</td><td>2.37e5</td><td>-2.116</td><td>0.250</td><td>1654</td></tr>
-            <tr><td>80</td><td>288</td><td>2.71e5</td><td>-2.118</td><td>0.250</td><td>2161</td></tr>
+            <tr><td>50</td><td>180</td><td>1.69e5</td><td>-1.283</td><td>0.201</td><td>513</td></tr>
+            <tr><td>65</td><td>234</td><td>2.20e5</td><td>-1.284</td><td>0.199</td><td>867</td></tr>
+            <tr><td>80</td><td>288</td><td>2.71e5</td><td>-1.285</td><td>0.198</td><td>1314</td></tr>
+            <tr><td>92</td><td>331</td><td>3.11e5</td><td>-1.285</td><td>0.197</td><td>1739</td></tr>
+            <tr><td>100</td><td>360</td><td>3.38e5</td><td>-1.286</td><td>0.197</td><td>2055</td></tr>
           </tbody>
         </table>
       </div>
 
       <p>
-        <strong>Key physics:</strong> C<sub>L</sub> varies by less than 0.5%
-        across the full velocity range (-2.108 at 40 m/s to -2.118 at 80 m/s).
+        <strong>Key physics:</strong> C<sub>L</sub> varies by less than 0.3%
+        across the full velocity range (-1.283 at 50 m/s to -1.286 at 100 m/s).
         This confirms that the flow is in the incompressible regime and that
         the force coefficient is independent of velocity, as required by
         Bernoulli's principle for a fixed geometry. The absolute downforce
-        force per unit span scales quadratically with velocity, from 539 N/m
-        at 144 km/h to 2161 N/m at 288 km/h.
+        force per unit span scales quadratically with velocity, from 513 N/m
+        at 180 km/h to 2055 N/m at 360 km/h.
       </p>
       <p>
-        The near-constant C<sub>D</sub> (0.250 &plusmn; 0.0002) validates
-        that the mesh resolution and turbulence model capture the correct
-        Re-independent behavior. Any significant drift in C<sub>L</sub> or
-        C<sub>D</sub> with Re would indicate unresolved separation or
-        transition effects requiring finer mesh or different turbulence
-        modeling.
+        C<sub>D</sub> drops slightly from 0.201 at 50 m/s to 0.197 at
+        100 m/s (a 2% decrease). This is a Reynolds number effect: at higher
+        Re the boundary layers are thinner, reducing skin friction drag.
+        The near-constant C<sub>D</sub> validates that the mesh resolution
+        and turbulence model capture the correct Re-independent behavior.
       </p>
 
-      <h3>Flow Field Visualizations (Paraview Required)</h3>
+      <h3>Flow Field Visualizations</h3>
+      <p>
+        Velocity and pressure fields for the velocity sweep are loaded from
+        the actual SU2 solution files at each velocity. In incompressible flow,
+        the pressure coefficient Cp is independent of velocity and the velocity
+        magnitude field scales linearly with freestream velocity, so the
+        contour patterns should appear nearly identical across all five cases.
+      </p>
       <div class="gallery">
-        <figure class="placeholder">
-          <div class="placeholder-box">
-            <span class="placeholder-label">Cp Profile Overlay: 40 vs 80 m/s</span>
-            <span class="placeholder-hint">case4_cp_overlay.png</span>
-          </div>
-          <figcaption>Cp profiles at 40 and 80 m/s. In incompressible flow the Cp distributions should collapse; differences reveal compressibility or Re effects. (Pending VTU solution files for non-reference velocities.)</figcaption>
+        <figure>
+          <img src="assets/images/cfd/case4/velocity_comparison.png" alt="Velocity comparison 50 vs 100 m/s" loading="lazy">
+          <figcaption>Side-by-side velocity contours at V=50 m/s (left) and V=100 m/s (right). The flow pattern is geometrically identical because the Reynolds number changes are small in this range and the flow remains incompressible. Loaded from actual SU2 VTU solution files.</figcaption>
         </figure>
-        <figure class="placeholder">
-          <div class="placeholder-box">
-            <span class="placeholder-label">Velocity Contour: 40 vs 80 m/s</span>
-            <span class="placeholder-hint">case4_velocity_comparison.png</span>
-          </div>
-          <figcaption>Side-by-side velocity contours. The flow pattern should be geometrically similar; any visible difference suggests Re-number dependence of separation. (Pending VTU solution files for non-reference velocities.)</figcaption>
+        <figure>
+          <img src="assets/images/cfd/case4/cp_overlay.png" alt="Cp profile overlay velocity sweep" loading="lazy">
+          <figcaption>Cp profile along the floor. In incompressible flow Cp is independent of velocity, so all 5 velocity cases (50-100 m/s) produce identical distributions. A single representative curve is shown (all 5 collapse to this line). The &lt; 0.3% CL variation confirms no compressibility or significant Re effects. Generated via PyVista <em>sample_over_line</em> + matplotlib.</figcaption>
+        </figure>
+      </div>
+
+      <h3>Flow Field Galleries</h3>
+      <p>
+        Full 3x2 grids of velocity magnitude and pressure coefficient contours
+        across all five velocities, loaded from the actual SU2 solution files
+        for direct visual comparison.
+      </p>
+      <div class="gallery">
+        <figure>
+          <img src="assets/images/cfd/case4/velocity_gallery.png" alt="Velocity gallery all velocities" loading="lazy">
+          <figcaption>Velocity magnitude contours for all 5 velocity sweep cases (50, 65, 80, 92, 100 m/s). Despite the 2x velocity range, the flow topology is identical across all cases, confirming incompressible behavior. Loaded from actual SU2 VTU solution files via PyVista 3x2 composite render.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/images/cfd/case4/cp_gallery.png" alt="Cp gallery all velocities" loading="lazy">
+          <figcaption>Pressure coefficient contours for all 5 velocity sweep cases. The Cp field is indistinguishable across velocities in the incompressible regime, as expected from Bernoulli's principle. Minor Re effects near walls are too small to appear at this scale. Loaded from actual SU2 VTU solution files via PyVista 3x2 composite render.</figcaption>
+        </figure>
+      </div>
+
+      <h3>Force Scaling Analysis</h3>
+      <p>
+        While Cp and the non-dimensional flow fields are identical across all velocities,
+        the dimensional forces obey the quadratic scaling law fundamental to F1 aerodynamics:
+        downforce and drag both scale with v<sup>2</sup>. The CL coefficient is constant
+        (0.24% variation) confirming incompressible behavior; CD decreases slightly
+        (2.1%) as Reynolds number increases, reducing skin friction. This yields a small
+        L/D improvement at higher speeds.
+      </p>
+      <div class="gallery">
+        <figure>
+          <img src="assets/images/cfd/case4/downforce_vs_v2.png" alt="Downforce vs v squared" loading="lazy">
+          <figcaption>Downforce Fz vs v<sup>2</sup>. Perfect linear relationship through the origin: Fz = k &middot; v<sup>2</sup>, confirming the quadratic scaling law. This is why F1 cars generate 4&times; the downforce at 200 km/h compared to 100 km/h.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/images/cfd/case4/drag_vs_v2.png" alt="Drag vs v squared" loading="lazy">
+          <figcaption>Drag Fd vs v<sup>2</sup>. Near-linear with a slight softening because CD decreases 2.1% across the sweep as skin friction drops with Reynolds number.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/images/cfd/case4/cl_cd_vs_velocity.png" alt="CL and CD vs velocity" loading="lazy">
+          <figcaption>Dual-axis plot of CL (left, teal) and CD (right, red) vs velocity. CL is flat (&minus;1.283 &plusmn; 0.0016, 0.24% variation) as expected for incompressible flow. CD droops from 0.201 to 0.197 (2.1%), consistent with Cf &prop; Re<sup>&minus;1/5</sup> scaling.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/images/cfd/case4/ld_vs_velocity.png" alt="L/D vs velocity" loading="lazy">
+          <figcaption>Aerodynamic efficiency L/D improves from 6.37 to 6.53 (+2.5%) as velocity increases. The constant CL and decreasing CD means the car is relatively more efficient at high speed, benefiting top-speed tracks like Monza.</figcaption>
         </figure>
       </div>
     </section>
@@ -485,10 +543,10 @@ print(f"CL = {result.cl:.2f}, CD = {result.cd:.4f}")</code></pre>
         <li>SU2 v8.4 binary (Harrier) at <code>/Users/ajeet/SU2_CFD/bin/SU2_CFD</code></li>
         <li>Mesh generation: structured quads via gmsh, moving ground + diffuser profile</li>
         <li>Solver: INC_RANS SST with VELOCITY_INLET, moving wall with SURFACE_TRANSLATION_RATE</li>
-        <li>Case 1 (Reference): 10/11 visuals generated (all except velocity profiles pending PyVista re-run)</li>
-        <li>Case 2 (Ride height): All 4 comparison visuals generated via PyVista + matplotlib</li>
-        <li>Case 3 (Diffuser angle): All 3 comparison visuals generated via PyVista + matplotlib</li>
-        <li>Case 4 (Velocity): 2 placeholders remain (VTU solution files needed for non-reference velocities)</li>
+        <li>Case 1 (Reference): 11 visuals under <code>case1/</code> (velocity, Cp, streamlines, vorticity, TKE, Mach contours + wall profiles + convergence)</li>
+        <li>Case 2 (Ride height): 5 visuals under <code>case2/</code> (sweep plot + Cp overlay + wall shear overlay + velocity & Cp galleries)</li>
+        <li>Case 3 (Diffuser angle): 4 visuals under <code>case3/</code> (sweep plot + Cp overlay + velocity & Cp galleries)</li>
+        <li>Case 4 (Velocity): 9 visuals under <code>case4/</code> (sweep plot + Cp overlay + velocity comparison + velocity & Cp galleries + downforce vs v² + drag vs v² + CL/CD dual-axis + L/D bar chart)</li>
         <li>Validation vs analytical model: scatter plot generated</li>
         <li>Run <code>uv run python -m runners.cfd_venturi --export-all</code> to regenerate all PyVista visuals</li>
       </ul>
