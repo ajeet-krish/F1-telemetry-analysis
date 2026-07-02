@@ -21,11 +21,107 @@ from src.core.physics import G
 set_f1_style()
 
 WINDOW_SIZE = (1920, 1080)
-CFD_CAMERA = [
-    (1.5, 0.075, 3.5),
-    (1.5, 0.075, 0),
-    (0, 1, 0),
-]
+CFD_CAMERA_FW = [(1.0, 0.6, 7.0), (1.0, 0.3, 0), (0, 1, 0)]
+
+
+def _render_contour_fw(mesh, scalars, cmap, save_path, clim=None):
+    plotter = pv.Plotter(off_screen=True, window_size=WINDOW_SIZE)
+    plotter.set_background(MERCEDES_DARK)
+    kwargs = dict(
+        scalars=scalars, cmap=cmap, show_edges=False, scalar_bar_args=SCALAR_BAR_ARGS
+    )
+    if clim:
+        kwargs["clim"] = clim
+    plotter.add_mesh(mesh, **kwargs)
+    plotter.camera_position = CFD_CAMERA_FW
+    plotter.screenshot(save_path)
+    plotter.close()
+
+
+def plot_vorticity_fw(mesh, save_path):
+    grad = mesh.compute_derivative(scalars="Velocity")
+    vel_grad = grad["gradient"]
+    vort_x = vel_grad[:, 7] - vel_grad[:, 5]
+    vort_y = vel_grad[:, 2] - vel_grad[:, 6]
+    vort_z = vel_grad[:, 3] - vel_grad[:, 1]
+    vort_mag = np.sqrt(vort_x**2 + vort_y**2 + vort_z**2)
+    mesh["Vorticity_Mag"] = vort_mag
+    _render_contour_fw(mesh, "Vorticity_Mag", "plasma", save_path, clim=[0, 200])
+
+
+def plot_cp_surface_fw(mesh, save_path):
+    boundary = mesh.extract_surface().extract_feature_edges(boundary_edges=True, non_manifold_edges=False, feature_edges=False, manifold_edges=False)
+    conn = boundary.connectivity()
+    fig, ax = plt.subplots(figsize=(10, 5))
+    for r_id, label in zip([1, 2, 3], ["Main", "Mid", "Flap"]):
+        sub = conn.threshold([r_id, r_id], "RegionId")
+        pts = sub.points
+        cp = sub["Pressure_Coefficient"]
+        idx = np.argsort(pts[:, 0])
+        ax.plot(pts[idx, 0], cp[idx], label=label, linewidth=2)
+    ax.invert_yaxis()
+    ax.set_xlabel("x (m)")
+    ax.set_ylabel("Cp")
+    ax.set_title("Surface Pressure Coefficient")
+    ax.grid(True, alpha=0.3)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(save_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+def plot_velocity_contour_fw(mesh, save_path):
+    _render_contour_fw(mesh, "Velocity_Mag", "turbo", save_path, clim=[0, 1.2])
+
+
+def plot_cp_contour_fw(mesh, save_path):
+    _render_contour_fw(mesh, "Pressure_Coefficient", "seismic", save_path, clim=[-4, 2])
+
+
+def plot_streamlines_fw(mesh, save_path):
+    rake = pv.Line(pointa=(-3.9, 0.05, 0), pointb=(-3.9, 1.2, 0), resolution=20)
+    stream = mesh.streamlines_from_source(
+        rake, vectors="Velocity", integration_direction="forward", max_length=10.0
+    )
+
+    plotter = pv.Plotter(off_screen=True, window_size=WINDOW_SIZE)
+    plotter.set_background(MERCEDES_DARK)
+    plotter.add_mesh(stream, scalars="Velocity_Mag", cmap="turbo", line_width=3, clim=[0, 1.2])
+    plotter.add_mesh(mesh.outline(), color=MERCEDES_GRAY)
+    plotter.camera_position = CFD_CAMERA_FW
+    plotter.screenshot(save_path)
+    plotter.close()
+
+
+def plot_vorticity_fw(mesh, save_path):
+    grad = mesh.compute_derivative(scalars="Velocity")
+    vel_grad = grad["gradient"]
+    vort_x = vel_grad[:, 7] - vel_grad[:, 5]
+    vort_y = vel_grad[:, 2] - vel_grad[:, 6]
+    vort_z = vel_grad[:, 3] - vel_grad[:, 1]
+    vort_mag = np.sqrt(vort_x**2 + vort_y**2 + vort_z**2)
+    mesh["Vorticity_Mag"] = vort_mag
+    _render_contour_fw(mesh, "Vorticity_Mag", "plasma", save_path, clim=[0, 200])
+
+
+def plot_cp_surface_fw(mesh, save_path):
+    boundary = mesh.extract_surface().extract_feature_edges(boundary_edges=True, non_manifold_edges=False, feature_edges=False, manifold_edges=False)
+    conn = boundary.connectivity()
+    fig, ax = plt.subplots(figsize=(10, 5))
+    for r_id, label in zip([1, 2, 3], ["Main", "Mid", "Flap"]):
+        sub = conn.threshold([r_id, r_id], "RegionId")
+        pts = sub.points
+        cp = sub["Pressure_Coefficient"]
+        idx = np.argsort(pts[:, 0])
+        ax.plot(pts[idx, 0], cp[idx], label=label, linewidth=2)
+    ax.invert_yaxis()
+    ax.set_xlabel("x (m)")
+    ax.set_ylabel("Cp")
+    ax.set_title("Surface Pressure Coefficient")
+    ax.grid(True, alpha=0.3)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(save_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
 
 SCALAR_BAR_ARGS = {
     "title_font_size": 35,
@@ -665,3 +761,211 @@ def export_case1_all(asset_dir: Path, result_dir: Path):
     print("  Velocity profiles...")
     plot_velocity_profiles(mesh, case1_dir / "velocity_profiles.png")
     print("Done.")
+
+
+def _render_sweep_grid_fw(
+    result_dir: Path,
+    param_values: list,
+    name_template: str,
+    scalars: str,
+    cmap: str,
+    save_path: Path,
+    label_prefix: str,
+    label_suffix: str = "",
+    clim: list = None,
+    scalar_bar_title: str = None,
+    shared_clim: bool = False,
+):
+    """Render a 3x2 PyVista grid of contour plots for a front wing parametric sweep.
+
+    Uses CFD_CAMERA_FW and Mercedes dark theme.
+    Only the bottom-right subplot shows the scalar bar.
+    Skips param values with missing VTU files.
+    """
+    meshes = []
+    labels = []
+    for p in param_values:
+        path = result_dir / name_template.format(p) / "vol_solution.vtu"
+        if not path.exists():
+            continue
+        meshes.append(_load_vtu(path))
+        labels.append(p)
+
+    if not meshes:
+        print(f"  No VTU files found for {name_template}")
+        return
+
+    if shared_clim and clim is None:
+        global_min = min(m[scalars].min() for m in meshes)
+        global_max = max(m[scalars].max() for m in meshes)
+        clim = [float(global_min), float(global_max)]
+
+    n_rows = (len(meshes) + 1) // 2
+    if n_rows > 3:
+        n_rows = 3
+    plotter = pv.Plotter(shape=(n_rows, 2), off_screen=True, window_size=(1920, n_rows * 480))
+    plotter.set_background(MERCEDES_DARK)
+
+    for idx, (mesh, p) in enumerate(zip(meshes, labels)):
+        if idx >= n_rows * 2:
+            break
+        row, col = divmod(idx, 2)
+        plotter.subplot(row, col)
+
+        label = f"{label_prefix}{p}{label_suffix}"
+        plotter.add_text(label, font_size=22, color="white", position="upper_left")
+
+        kwargs = dict(scalars=scalars, cmap=cmap, show_edges=False)
+        if clim:
+            kwargs["clim"] = clim
+        is_last = (row == n_rows - 1 and col == 1)
+        if is_last:
+            sb_args = dict(SCALAR_BAR_ARGS)
+            if scalar_bar_title:
+                sb_args["title"] = scalar_bar_title
+            kwargs["scalar_bar_args"] = sb_args
+        else:
+            kwargs["show_scalar_bar"] = False
+
+        plotter.add_mesh(mesh, **kwargs)
+        plotter.camera_position = CFD_CAMERA_FW
+
+    plotter.screenshot(save_path)
+    plotter.close()
+
+
+def export_fw_aoa_main_velocity_gallery(result_dir: Path, save_path: Path):
+    _render_sweep_grid_fw(
+        result_dir, [-20, -16, -12, -8, -4, 0, 4],
+        "fw_aoa_main_{}", "Velocity_Mag", "turbo",
+        save_path, "AoA=", " deg",
+        scalar_bar_title="Velocity Magnitude (m/s)",
+        shared_clim=True,
+    )
+
+
+def export_fw_aoa_main_cp_gallery(result_dir: Path, save_path: Path):
+    _render_sweep_grid_fw(
+        result_dir, [-20, -16, -12, -8, -4, 0, 4],
+        "fw_aoa_main_{}", "Pressure_Coefficient", "seismic",
+        save_path, "AoA=", " deg", clim=[-4, 2],
+        scalar_bar_title="Pressure Coefficient Cp",
+    )
+
+
+def export_fw_rh_velocity_gallery(result_dir: Path, save_path: Path):
+    _render_sweep_grid_fw(
+        result_dir, [0.01, 0.02, 0.035, 0.05, 0.065, 0.08],
+        "fw_rh_{}", "Velocity_Mag", "turbo",
+        save_path, "h=", " m",
+        scalar_bar_title="Velocity Magnitude (m/s)",
+        shared_clim=True,
+    )
+
+
+def export_fw_rh_cp_gallery(result_dir: Path, save_path: Path):
+    _render_sweep_grid_fw(
+        result_dir, [0.01, 0.02, 0.035, 0.05, 0.065, 0.08],
+        "fw_rh_{}", "Pressure_Coefficient", "seismic",
+        save_path, "h=", " m", clim=[-4, 2],
+        scalar_bar_title="Pressure Coefficient Cp",
+    )
+
+
+def export_fw_sg_velocity_gallery(result_dir: Path, save_path: Path):
+    _render_sweep_grid_fw(
+        result_dir, [0.01, 0.015, 0.02, 0.025],
+        "fw_sg_{}", "Velocity_Mag", "turbo",
+        save_path, "sg=", " m",
+        scalar_bar_title="Velocity Magnitude (m/s)",
+        shared_clim=True,
+    )
+
+
+def export_fw_sg_cp_gallery(result_dir: Path, save_path: Path):
+    _render_sweep_grid_fw(
+        result_dir, [0.01, 0.015, 0.02, 0.025],
+        "fw_sg_{}", "Pressure_Coefficient", "seismic",
+        save_path, "sg=", " m", clim=[-4, 2],
+        scalar_bar_title="Pressure Coefficient Cp",
+    )
+
+
+def export_fw_flap_deploy_velocity_gallery(result_dir: Path, save_path: Path):
+    _render_sweep_grid_fw(
+        result_dir, [0, 5, 10, 15, 20],
+        "fw_flap_deploy_{}", "Velocity_Mag", "turbo",
+        save_path, "deploy=", " deg",
+        scalar_bar_title="Velocity Magnitude (m/s)",
+        shared_clim=True,
+    )
+
+
+def export_fw_flap_deploy_cp_gallery(result_dir: Path, save_path: Path):
+    _render_sweep_grid_fw(
+        result_dir, [0, 5, 10, 15, 20],
+        "fw_flap_deploy_{}", "Pressure_Coefficient", "seismic",
+        save_path, "deploy=", " deg", clim=[-4, 2],
+        scalar_bar_title="Pressure Coefficient Cp",
+    )
+
+
+# ── Front Wing Export Pipeline ──
+
+FW_ASSET_DIR = Path("docs/assets/images/cfd/front_wing")
+FW_RESULT_DIR = Path("su2_runs/results/front_wing")
+
+
+def export_fw_reference(asset_dir: Path = FW_ASSET_DIR, result_dir: Path = FW_RESULT_DIR):
+    """Render front wing reference case visualizations."""
+    print("Exporting front wing reference case visualizations...")
+    vtu_path = result_dir / "fw_reference" / "vol_solution.vtu"
+    if not vtu_path.exists():
+        print(f"  VTU not found: {vtu_path}")
+        return
+    mesh = _load_vtu(vtu_path)
+    print("  Velocity contour...")
+    plot_velocity_contour_fw(mesh, asset_dir / "fw_velocity_contour.png")
+    print("  Cp contour...")
+    plot_cp_contour_fw(mesh, asset_dir / "fw_cp_contour.png")
+    print("  Streamlines...")
+    plot_streamlines_fw(mesh, asset_dir / "fw_streamlines.png")
+    print("  Vorticity...")
+    plot_vorticity_fw(mesh, asset_dir / "fw_vorticity.png")
+    print("  Cp surface profiles...")
+    plot_cp_surface_fw(mesh, asset_dir / "fw_cp_surface.png")
+    print("Done.")
+
+
+def export_fw_sweep_plots(asset_dir: Path = FW_ASSET_DIR):
+    """Copy sweep comparison plots (already generated by wing.py)."""
+    for sweep in ["aoa_main", "rh", "sg", "flap_deploy"]:
+        src = asset_dir / f"{sweep}_sweep.png"
+        if src.exists():
+            print(f"  Sweep plot found: {src}")
+
+
+def export_fw_all(asset_dir: Path = FW_ASSET_DIR, result_dir: Path = FW_RESULT_DIR):
+    """Export all front wing visualizations including sweep contour galleries."""
+    export_fw_reference(asset_dir, result_dir)
+    export_fw_sweep_plots(asset_dir)
+
+    print("  AoA sweep galleries...")
+    export_fw_aoa_main_velocity_gallery(result_dir, asset_dir / "aoa_main_velocity_gallery.png")
+    export_fw_aoa_main_cp_gallery(result_dir, asset_dir / "aoa_main_cp_gallery.png")
+    print("    done")
+
+    print("  Ride height sweep galleries...")
+    export_fw_rh_velocity_gallery(result_dir, asset_dir / "rh_velocity_gallery.png")
+    export_fw_rh_cp_gallery(result_dir, asset_dir / "rh_cp_gallery.png")
+    print("    done")
+
+    print("  Slot gap sweep galleries...")
+    export_fw_sg_velocity_gallery(result_dir, asset_dir / "sg_velocity_gallery.png")
+    export_fw_sg_cp_gallery(result_dir, asset_dir / "sg_cp_gallery.png")
+    print("    done")
+
+    print("  Active aero sweep galleries...")
+    export_fw_flap_deploy_velocity_gallery(result_dir, asset_dir / "flap_deploy_velocity_gallery.png")
+    export_fw_flap_deploy_cp_gallery(result_dir, asset_dir / "flap_deploy_cp_gallery.png")
+    print("    done")

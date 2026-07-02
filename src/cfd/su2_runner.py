@@ -64,6 +64,7 @@ class SU2Config:
     time_iter: int = 1
     inner_iter: int = 15
     output_wrt_freq: int = 1
+    slip_walls: bool = False  # True=Euler (MARKER_EULER), False=RANS (MARKER_HEATFLUX)
 
     @classmethod
     def from_re(cls, Re: float, length: float = 0.6, incompressible: bool = True) -> "SU2Config":
@@ -71,6 +72,66 @@ class SU2Config:
             return cls(reynolds_number=Re, reynolds_length=length, solver="INC_RANS")
         return cls(reynolds_number=Re, reynolds_length=length, solver="RANS",
                     mach_number=0.059 * (Re / 200_000))
+
+    @classmethod
+    def for_airfoil(cls, aoa: float = 0.0, vel: float = 20.0, chord: float = 1.0,
+                    ride_height: float = 0.05, euler: bool = True) -> "SU2Config":
+        """Factory for external airfoil/wing flow (inverted, ground effect).
+
+        Configures INC_EULER or INC_RANS SST with velocity inlet, pressure outlet,
+        farfield top boundary, and slip (Euler) or no-slip (RANS) walls.
+        Uses Euler by default since RANS requires finer mesh for gap flow resolution.
+        """
+        rho = 1.225
+        mu = 1.81e-5
+        Re = rho * vel * chord / mu
+        if euler:
+            return cls(
+                reynolds_number=round(Re),
+                reynolds_length=chord,
+                solver="INC_EULER",
+                turbulence_model="",
+                angle_of_attack=aoa,
+                inc_velocity_init=(vel, 0.0, 0.0),
+                inc_density_init=rho,
+                cfl_number=0.5,
+                iterations=2000,
+                conv_residual_minval=-7,
+                conv_field="LIFT",
+                marker_walls=("airfoil_main", "airfoil_mid", "airfoil_flap", "ground"),
+                marker_far=("farfield",),
+                marker_inlets=("inlet",),
+                marker_outlets=("outlet",),
+                inc_inlet_type="VELOCITY_INLET",
+                inc_outlet_type="PRESSURE_OUTLET",
+                inlet_density=rho,
+                marker_monitoring=("airfoil_main", "airfoil_mid", "airfoil_flap"),
+                moving_wall=False,
+                slip_walls=True,
+            )
+        return cls(
+            reynolds_number=round(Re),
+            reynolds_length=chord,
+            solver="INC_RANS",
+            turbulence_model="SST",
+            angle_of_attack=aoa,
+            inc_velocity_init=(vel, 0.0, 0.0),
+            inc_density_init=rho,
+            cfl_number=1.0,
+            iterations=4000,
+            conv_residual_minval=-7,
+            conv_field="LIFT",
+            marker_walls=("airfoil_main", "airfoil_mid", "airfoil_flap", "ground"),
+            marker_far=("farfield",),
+            marker_inlets=("inlet",),
+            marker_outlets=("outlet",),
+            inc_inlet_type="VELOCITY_INLET",
+            inc_outlet_type="PRESSURE_OUTLET",
+            inlet_density=rho,
+            marker_monitoring=("airfoil_main", "airfoil_mid", "airfoil_flap"),
+            moving_wall=False,
+            slip_walls=False,
+        )
 
     def write(self, path: Path) -> None:
         is_inc = self.solver.startswith("INC_")
@@ -92,6 +153,7 @@ class SU2Config:
                 f"INC_ENERGY_EQUATION= {self.inc_energy_eq}",
                 f"INC_DENSITY_INIT= {self.inc_density_init}",
                 f"INC_VELOCITY_INIT= ( {self.inc_velocity_init[0]}, {self.inc_velocity_init[1]}, {self.inc_velocity_init[2]} )",
+                f"AOA= {self.angle_of_attack:.2f}",
                 f"INC_NONDIM= INITIAL_VALUES",
                 f"REYNOLDS_NUMBER= {int(self.reynolds_number)}",
                 f"REYNOLDS_LENGTH= {self.reynolds_length}",
@@ -111,7 +173,7 @@ class SU2Config:
             ]
         lines += [
             f"% ------------------------ BOUNDARY CONDITIONS -------------------------",
-            f"MARKER_HEATFLUX= ( {' , '.join(f'{m}, 0.0' for m in self.marker_walls)} )",
+            f"{'MARKER_EULER= ( ' + ' , '.join(self.marker_walls) + ' )' if self.slip_walls else 'MARKER_HEATFLUX= ( ' + ' , '.join(f'{m}, 0.0' for m in self.marker_walls) + ' )'}",
             f"{f'WALL_ROUGHNESS= ( {self.marker_walls[0]}, {self.wall_roughness:.6e} )' if self.wall_roughness > 0 else '% No wall roughness'}",
             f"MARKER_MONITORING= ( {' , '.join(self.marker_monitoring) if self.marker_monitoring else ' , '.join(self.marker_walls)} )",
             f"MARKER_FAR= ( {', '.join(self.marker_far)} )" if self.marker_far else "% No farfield",
@@ -381,6 +443,193 @@ class MeshGenerator:
 
         gmsh.model.mesh.createTopology()
 
+        out = Path(f"{name}.su2")
+        gmsh.write(str(out))
+        gmsh.finalize()
+        return out
+
+    @staticmethod
+    def airfoil_cgrid_2d(
+        elements: list,
+        ride_height: float = 0.05,
+        name: str = "front_wing",
+        domain_x_left: float = -4.0,
+        domain_x_right: float = 6.0,
+        domain_y_top: float = 1.5,
+        bl_n_layers: int = 30,
+        bl_thickness_first: float = 1e-5,
+        bl_ratio: float = 1.15,
+        max_size_body: float = 0.01,
+        max_size_far: float = 0.15,
+        slot_refine: float = 0.003,
+    ) -> Path:
+        """Generate an unstructured 2D mesh for a multi-element airfoil in ground effect.
+
+        Uses a rectangular domain with straight vertical inlet on the left,
+        pressure outlet on the right, ground on the bottom, and farfield on top.
+        Produces unstructured triangles with boundary layer refinement around each airfoil
+        element and wake refinement downstream.
+
+        Physical groups: airfoil_main, airfoil_mid, airfoil_flap, ground, inlet, outlet, farfield, fluid.
+        """
+        import gmsh
+
+        gmsh.initialize()
+        gmsh.model.add(name)
+
+        # Compute shift so lowest point across all elements is at ride_height above ground
+        all_coords = np.vstack([e["coords"] for e in elements])
+        global_min_y = all_coords[:, 1].min()
+        shift_y = ride_height - global_min_y
+
+        # Create airfoil closed wires via OCC kernel
+        airfoil_names = ["airfoil_main", "airfoil_mid", "airfoil_flap"]
+        airfoil_faces = []  # dim=2 faces to cut out
+        all_airfoil_curves = []
+        for idx, elem in enumerate(elements):
+            coords = elem["coords"].copy()
+            coords[:, 1] += shift_y
+            # Close TE: merge upper/lower TE points
+            n = len(coords)
+            te_u = n // 2 - 1
+            te_l = n // 2
+            coords[te_u] = (coords[te_u] + coords[te_l]) / 2
+            # Reverse vertex order to produce clockwise orientation
+            # Boolean-cut holes need CW boundaries so wall normals point OUT of fluid
+            coords = coords[::-1]
+            # Create BSpline curve through all points (closed polygon)
+            pt_tags = [gmsh.model.occ.addPoint(c[0], c[1], 0, max_size_body) for c in coords]
+            gmsh.model.occ.synchronize()
+            curve = gmsh.model.occ.addBSpline(pt_tags)
+            gmsh.model.occ.synchronize()
+            # Create closed wire from the curve
+            wire = gmsh.model.occ.addWire([curve])
+            gmsh.model.occ.synchronize()
+            # Create a face from the wire (for boolean cut)
+            face = gmsh.model.occ.addPlaneSurface([wire])
+            gmsh.model.occ.synchronize()
+            airfoil_faces.append(face)
+            # Track curves for mesh sizing
+            all_airfoil_curves.append(curve)
+
+        # Outer boundary: ground (bottom) + outlet (right) + farfield (top, straight) + inlet (left, straight)
+        # Points for the boundary wire (counter-clockwise from ground-left)
+        p_ground_left = gmsh.model.occ.addPoint(domain_x_left, 0.0, 0, max_size_far)
+        p_ground_right = gmsh.model.occ.addPoint(domain_x_right, 0.0, 0, max_size_far)
+        p_outlet_top = gmsh.model.occ.addPoint(domain_x_right, domain_y_top, 0, max_size_far)
+        p_inlet_top = gmsh.model.occ.addPoint(domain_x_left, domain_y_top, 0, max_size_far)
+        gmsh.model.occ.synchronize()
+
+        # Ground line
+        ground_line = gmsh.model.occ.addLine(p_ground_left, p_ground_right)
+        # Outlet line
+        outlet_line = gmsh.model.occ.addLine(p_ground_right, p_outlet_top)
+        # Top line (farfield, straight)
+        top_line = gmsh.model.occ.addLine(p_outlet_top, p_inlet_top)
+        # Inlet: straight vertical line at left boundary
+        inlet_line = gmsh.model.occ.addLine(p_inlet_top, p_ground_left)
+
+        # Create closed wire: ground -> outlet -> top -> inlet -> back to start
+        outer_wire = gmsh.model.occ.addWire([ground_line, outlet_line, top_line, inlet_line])
+        gmsh.model.occ.synchronize()
+        outer_face = gmsh.model.occ.addPlaneSurface([outer_wire])
+        gmsh.model.occ.synchronize()
+
+        # Boolean cut: subtract airfoil faces from outer face
+        cut_result = gmsh.model.occ.cut([(2, outer_face)], [(2, f) for f in airfoil_faces],
+                                        removeTool=True)
+        gmsh.model.occ.synchronize()
+        result_dimtags = cut_result[0]
+
+        # Physical groups: identify boundary edges by position
+        all_edges = gmsh.model.getBoundary(result_dimtags, oriented=False)
+        edge_tags = [e[1] for e in all_edges]
+        gmsh.model.occ.synchronize()
+
+        airfoil_boundary_tags = []
+        for etag in edge_tags:
+            com = gmsh.model.occ.getCenterOfMass(1, etag)
+            x, y = com[0], com[1]
+            if abs(y) < 1e-3:
+                gmsh.model.addPhysicalGroup(1, [etag], name="ground")
+            elif abs(x - domain_x_right) < 1e-3 and y > 1e-3:
+                gmsh.model.addPhysicalGroup(1, [etag], name="outlet")
+            elif abs(y - domain_y_top) < 1e-3:
+                gmsh.model.addPhysicalGroup(1, [etag], name="farfield")
+            elif abs(x - domain_x_left) < 1e-3 and y > 1e-3:
+                gmsh.model.addPhysicalGroup(1, [etag], name="inlet")
+            else:
+                airfoil_boundary_tags.append((x, etag))
+
+        # Sort airfoil boundary tags by x-coordinate to identify main, mid, flap
+        airfoil_boundary_tags.sort(key=lambda item: item[0])
+
+        # Airfoil physical groups
+        for idx, (x_com, etag) in enumerate(airfoil_boundary_tags):
+            if idx < len(airfoil_names):
+                gmsh.model.addPhysicalGroup(1, [etag], name=airfoil_names[idx])
+
+        # Fluid domain physical group
+        for dimtag in result_dimtags:
+            if dimtag[0] == 2:
+                gmsh.model.addPhysicalGroup(2, [dimtag[1]], name="fluid")
+
+        gmsh.model.occ.synchronize()
+
+        # Mesh sizing: use global mesh size limits
+        gmsh.option.setNumber("Mesh.MeshSizeMax", max_size_far)
+        gmsh.option.setNumber("Mesh.MeshSizeMin", bl_thickness_first if bl_n_layers > 0 else max_size_body)
+
+        # Set mesh size on the actual airfoil curves for proper surface resolution
+        for x_com, etag in airfoil_boundary_tags:
+            gmsh.model.mesh.setSize([(1, etag)], max_size_body)
+
+        # Collect all mesh size fields
+        all_fields = []
+
+        # Boundary layer fields around each airfoil
+        if bl_n_layers > 0 and len(airfoil_boundary_tags) == 3:
+            for idx, (x_com, etag) in enumerate(airfoil_boundary_tags):
+                bl = gmsh.model.mesh.field.add("BoundaryLayer")
+                gmsh.model.mesh.field.setNumbers(bl, "CurvesList", [etag])
+                gmsh.model.mesh.field.setNumber(bl, "Size", bl_thickness_first)
+                gmsh.model.mesh.field.setNumber(bl, "Ratio", bl_ratio)
+                gmsh.model.mesh.field.setNumber(bl, "Quads", 1)
+                bl_total = bl_thickness_first * (bl_ratio**bl_n_layers - 1) / (bl_ratio - 1)
+                gmsh.model.mesh.field.setNumber(bl, "Thickness", bl_total)
+                all_fields.append(bl)
+
+        # Wake refinement: Distance+Threshold downstream of flap
+        flap_max_x = max(elements[2]["coords"][:, 0]) + shift_y if len(elements) > 2 else 2.0
+        wake_x_start = flap_max_x + 0.5
+        wake_x_end = domain_x_right - 0.5
+        if wake_x_end > wake_x_start:
+            wake_pt_tags = []
+            for x_wake in np.linspace(wake_x_start, wake_x_end, 4):
+                for y_wake in np.linspace(0.0, domain_y_top * 0.6, 5):
+                    pt = gmsh.model.occ.addPoint(x_wake, y_wake, 0, max_size_far)
+                    wake_pt_tags.append(pt)
+            gmsh.model.occ.synchronize()
+            if wake_pt_tags:
+                dist_wake = gmsh.model.mesh.field.add("Distance")
+                gmsh.model.mesh.field.setNumbers(dist_wake, "PointsList", wake_pt_tags)
+                thres_wake = gmsh.model.mesh.field.add("Threshold")
+                gmsh.model.mesh.field.setNumber(thres_wake, "InField", dist_wake)
+                gmsh.model.mesh.field.setNumber(thres_wake, "SizeMin", max_size_body * 2)
+                gmsh.model.mesh.field.setNumber(thres_wake, "SizeMax", max_size_far)
+                gmsh.model.mesh.field.setNumber(thres_wake, "DistMin", 0.05)
+                gmsh.model.mesh.field.setNumber(thres_wake, "DistMax", 1.0)
+                all_fields.append(thres_wake)
+
+        # Set background mesh: combine all fields via Min
+        if all_fields:
+            min_field = gmsh.model.mesh.field.add("Min")
+            gmsh.model.mesh.field.setNumbers(min_field, "FieldsList", all_fields)
+            gmsh.model.mesh.field.setAsBackgroundMesh(min_field)
+
+        gmsh.model.mesh.generate(2)
+
+        gmsh.model.mesh.createTopology()
         out = Path(f"{name}.su2")
         gmsh.write(str(out))
         gmsh.finalize()

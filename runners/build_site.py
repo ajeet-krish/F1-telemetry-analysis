@@ -26,6 +26,7 @@ PAGES = [
     ("cornering.html", "Cornering"),
     ("strategy.html", "Strategy"),
     ("powertrain.html", "Powertrain & Aero"),
+    ("cfd_front_wing.html", "CFD Front Wing"),
     ("cfd_venturi.html", "CFD Venturi"),
     ("implementation.html", "Code"),
 ]

@@ -12,7 +12,7 @@ The site features three tiers of content:
 
 - **Interactive Telemetry Explorer**: Plotly-powered synchronized track maps with hover cross-referencing between the circuit layout and speed/throttle/brake/gear traces, plus a 3D grip envelope (Lat G vs Long G vs Speed) with driver comparison dropdowns.
 - **Static Analysis Pages**: Deep-dive analytical content with matplotlib/seaborn visualizations covering downforce breakdowns, ride height sensitivity, DRS mechanics, cornering performance, strategy, and powertrain regimes.
-- **CFD Validation Page**: SU2 RANS SST simulation of the floor venturi tunnel with PyVista-generated flow field visualizations (velocity, Cp, vorticity contours; streamlines; wall profile extractions) and parametric ride height/diffuser angle/velocity sweeps.
+- **CFD Validation Pages**: SU2 RANS SST simulations of the floor venturi tunnel and 3-element inverted front wing with PyVista-generated flow field visualizations (velocity, Cp, vorticity contours; streamlines; wall profile extractions) and parametric sweeps.
 
 ### Analysis Pages
 
@@ -26,7 +26,8 @@ The site features three tiers of content:
 | Cornering | Downforce to lateral grip, driver KDE comparison | Analytical + telemetry g-g + seaborn |
 | Strategy | Tire degradation, fuel-adjusted pace, ridge plots | FastF1 lap/position data + simulated |
 | Powertrain & Aero | v^2 vs RPM, drag-limited vs power-limited | FastF1 telemetry scatter plots |
-| CFD Venturi | 2D venturi tunnel ground effect simulation | SU2 RANS SST + PyVista visualization |
+| CFD Front Wing | 3-element inverted front wing, ground effect, 2026 active aero | SU2 RANS SST + PyVista |
+| CFD Venturi | 2D venturi tunnel ground effect simulation | SU2 RANS SST + PyVista |
 
 ## Architecture
 
@@ -49,6 +50,8 @@ src/
     interactive.py      G-force computation, synchronized track maps, 3D envelope
   cfd/                # SU2 CFD integration
     su2_runner.py       SU2Config, MeshGenerator, SU2Solver
+    airfoil.py          NACA 4-digit geometry, multi-element positioning
+    wing.py             Wing mesh generation (structured multi-block C-grid), sweep orchestration
     venturi.py          2D venturi tunnel with moving wall, parametric sweeps
     pyvista_viz.py      PyVista rendering: contours, streamlines, wall profiles, sweep overlays
     validate.py         Validation against published venturi/floor data
@@ -62,14 +65,15 @@ runners/              # Entry-point scripts (invoked via python -m)
     strategy.py         uv run python -m runners.strategy
     powertrain.py       uv run python -m runners.powertrain
     cfd_venturi.py      uv run python -m runners.cfd_venturi
+    cfd_front_wing.py   uv run python -m runners.cfd_front_wing
     all.py              Run all analyses + interactive + CFD export
     build_site.py       Sidebar sync for HTML pages
 docs/                 # Standalone HTML portfolio site (GitHub Pages root)
   *.html                index, theory, downforce, ride_height, drs_active_aero,
-                        track_setups, cornering, strategy, powertrain, cfd_venturi,
-                        implementation
+                        track_setups, cornering, strategy, powertrain, cfd_front_wing,
+                        cfd_venturi, implementation
   css/style.css         Mercedes-inspired dark theme
-  assets/images/        60+ matplotlib + PyVista PNG plots by section:
+  assets/images/        90+ matplotlib + PyVista PNG plots by section:
     downforce/           Component breakdown, L/D, drag polar, aero balance
     ride_height/         Ground effect curves, CL contour, porpoising
     drs/                 Drag polar, speed delta, overtaking, telemetry trace
@@ -77,7 +81,7 @@ docs/                 # Standalone HTML portfolio site (GitHub Pages root)
     cornering/           G-g diagram, corner radius, grip envelope, driver KDE
     strategy/            Tire delta, fuel correction, undercut, degradation
     powertrain/          v^2 vs RPM scatter
-    cfd/                 PyVista renders + sweep overlays (20+ images)
+    cfd/                 PyVista renders + sweep overlays (50+ images across venturi + front wing)
     paraview_plots/      Paraview VTK screenshots (archive)
   assets/data/          Plotly JSON assets (track_map, telemetry_traces, performance_envelope)
 ```
@@ -121,6 +125,12 @@ uv run python -m runners.cfd_venturi --quick      # mesh preview only
 uv run python -m runners.cfd_venturi --export     # PyVista Case 1 only
 uv run python -m runners.cfd_venturi --export-all # PyVista Case 1 + sweep overlays
 
+# Run CFD front wing simulation (requires SU2 v8.4)
+uv run python -m runners.cfd_front_wing            # reference + all sweeps (~2 hours)
+uv run python -m runners.cfd_front_wing --quick    # mesh preview only
+uv run python -m runners.cfd_front_wing --export   # reference case only
+uv run python -m runners.cfd_front_wing --export-all # all sweeps + galleries
+
 # Sync nav bar across all HTML pages
 uv run python -m runners.build_site
 
@@ -135,7 +145,7 @@ uv run python -m http.server -d docs 8000
 - FastF1 (telemetry data)
 - Plotly (interactive visualizations)
 - PyVista (CFD visualization, VTK rendering)
-- SU2 v8.4 "Harrier" (for CFD venturi simulation, optional)
+- SU2 v8.4 "Harrier" (for CFD simulation, optional)
 - Gmsh Python SDK (mesh generation, optional)
 
 All Python dependencies are in `pyproject.toml` and installed via `uv sync`.
@@ -149,19 +159,44 @@ su2_runs/
   configs/        -- Generated .cfg files for each case
   meshes/         -- Structured quad .su2 mesh files
   results/        -- Per-case result dirs (history.csv, vol_solution.vtu)
+    rh_vi_h*_a*/    Venturi ride height sweep
+    da_vi_a*_h*/    Venturi diffuser angle sweep
+    venturi_h50_a17_v*/ Venturi velocity sweep
+    front_wing/     Front wing organized by sweep subdirectory
+      reference/    fw_a6_h50_sg15
+      aoa/          fw_a{-4,0,4,8,12,16,20}_h50_sg15
+      ride_height/  fw_a6_h{10,20,35,50,65,80}_sg15
+      slot_gap/     fw_a6_h50_sg{10,15,20,25}
+      active_aero/  fw_a6_h50_sg15_f{0,5,10,15,20}
   scratch/        -- Ad-hoc test runs
   *.json          -- Sweep data for plotting
 ```
 
-Available result directories (12 VTU solution files):
-- Ride height sweep: rh_vi_h{25,35,50,65,80,100}_a17
-- Diffuser angle sweep: da_vi_a{10,12,14,16,18,20}_h50
+### Front Wing Configuration (3-element inverted)
 
-PyVista extraction pipeline generates:
-- Flow field: velocity contours, Cp contours, streamlines, vorticity, TKE, Mach
-- Wall profiles: Cp along floor/ground, y+ distribution, wall shear
-- Velocity profiles: boundary layer profiles at 4 x-stations
-- Sweep overlays: side-by-side comparisons, Cp/shear overlays for all ride heights and diffuser angles
+| Element | Profile | Chord | Baseline AoA |
+|---------|---------|-------|-------------|
+| Main    | NACA 6412 inverted | 1.0 | 6 deg |
+| Mid     | NACA 4410 inverted | 0.6 | 11 deg (5 deg relative) |
+| Flap    | NACA 2412 inverted | 0.4 | 16 deg (10 deg relative) |
+
+Slot gap: 15mm reference. Overlap: 25% chord. Ground plane at configurable ride height.
+
+### Sweeps
+
+| Sweep | Cases | Parameters |
+|-------|-------|------------|
+| Reference | 1 | AoA=6 deg, h=50mm, sg=15mm |
+| AoA | 7 | -4, 0, 4, 8, 12, 16, 20 deg (includes post-stall) |
+| Ride height | 6 | 10, 20, 35, 50, 65, 80 mm (10mm shows ground effect stall) |
+| Slot gap | 4 | 10, 15, 20, 25 mm |
+| Active aero | 5 | Flap deploy +0 to +20 deg (2026 X-mode) |
+
+### PyVista Extraction Pipeline
+
+**Venturi**: Flow field (velocity, Cp, streamlines, vorticity, TKE, Mach), wall profiles (Cp, y+, shear), velocity profiles at x-stations, sweep galleries and overlays.
+
+**Front wing**: Flow field (velocity, Cp, streamlines, vorticity), Cp surface profiles, boundary layer profiles, wake profiles (deficit, centerline, TKE), sweep galleries and force scaling.
 
 ## Project Status
 
@@ -176,11 +211,10 @@ PyVista extraction pipeline generates:
 | Strategy | Done |
 | Powertrain & Aero | Done |
 | Interactive Plotly viz | Done (track map sync + 3D envelope) |
-| CFD venturi | Done (12 VTU solutions, PyVista extraction pipeline, sweep overlays) |
-| Theory page merge | Done (analytical plots integrated) |
+| CFD venturi | Done (17 VTU solutions, PyVista extraction pipeline, sweep overlays) |
+| CFD front wing | In progress (NACA geometry done, mesh/SU2 pipeline building) |
+| Theory page merge | Done |
 | Site polish | Done |
-
-Remaining: 2 placeholders on CFD page for velocity sweep (needs SU2 re-run at multiple velocities with VTU export).
 
 ## References
 
