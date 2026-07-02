@@ -89,7 +89,7 @@ docs/
 - **Interactive Plotly viz:** Generate JSON via src/viz/interactive.py functions, save to docs/assets/data/, load in HTML via Plotly.js CDN + fetch calls. Bi-directional hover sync uses Plotly.Fx.hover with a 200ms re-entrant guard.
 - **G-force computation:** Lateral G from 3-point curvature on (X,Y) trajectory; Longitudinal G from np.gradient on speed vs time. Formula: ay = k * v^2 / g, ax = dv/dt / g.
 - **Dual-container layout:** Track map (top, 600px) and telemetry traces (bottom, 400px) are separate Plotly containers to avoid axis-type conflicts (spatial vs distance-series axes).
-- **PyVista rendering:** Use `_render_contour()` for single-mesh field contours, matplotlib for wall profile overlays. Side-by-side comparisons use `plotter.shape=(1,2)`. Always use `CFD_CAMERA` and `SCALAR_BAR_ARGS` for consistency.
+- **PyVista rendering:** Use `_render_contour()` for single-mesh field contours, matplotlib for wall profile overlays. Side-by-side comparisons use `plotter.shape=(1,2)`. Always use `CFD_CAMERA` (venturi) or `CFD_CAMERA_FW` (front wing) and `SCALAR_BAR_ARGS` for consistency.
 - **CFD analysis naming convention:** Each analysis type gets its own results subdirectory. Venturi: `su2_runs/results/rh_vi_*`. Front wing: `su2_runs/results/front_wing/*`. Images organized by analysis under `docs/assets/images/cfd/{analysis}/`.
 - **Airfoil geometry:** Use NACA 4-digit profiles via `src/cfd/airfoil.py`. Generate coordinates with `naca_4digit()`, invert with `invert_airfoil()`, position with `position_element()`.
 - **Front wing visualization:** Use `CFD_CAMERA_FW = [(1.0, 0.5, 1.5), (1.0, 0.3, 0), (0, 1, 0)]` for wing rendering. Same scalar bar args as venturi.
@@ -151,7 +151,7 @@ uv run python -m http.server -d docs 8000              # preview site
 - **Global settings:** `pv.global_theme.font.color = 'white'`, `pv.global_theme.font.title_size = 32`, `pv.global_theme.font.label_size = 22`
 - **Window:** `WINDOW_SIZE = (1920, 1080)`
 - **Venturi camera:** `CFD_CAMERA = [(1.5, 0.075, 3.5), (1.5, 0.075, 0), (0, 1, 0)]`
-- **Front wing camera:** `CFD_CAMERA_FW = [(1.0, 0.5, 1.5), (1.0, 0.3, 0), (0, 1, 0)]`
+- **Front wing camera:** `CFD_CAMERA_FW = [(1.0, 0.6, 3.5), (1.0, 0.3, 0), (0, 1, 0)]`
 - **Scalar bar args:** `SCALAR_BAR_ARGS = {"title_font_size": 35, "label_font_size": 28, "position_x": 0.22, "position_y": 0.1, "vertical": False}`
 - **Core helper:** `_render_contour(mesh, scalars, cmap, save_path, clim=None)` -- handles off-screen rendering, background, camera, and screenshot.
 - **Field computation:** `compute_derivative()` output array named `'gradient'` (not `'gradient_of_Velocity'`). Vorticity computed manually as curl of velocity gradient.

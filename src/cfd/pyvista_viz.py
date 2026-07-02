@@ -21,7 +21,7 @@ from src.core.physics import G
 set_f1_style()
 
 WINDOW_SIZE = (1920, 1080)
-CFD_CAMERA_FW = [(1.0, 0.6, 7.0), (1.0, 0.3, 0), (0, 1, 0)]
+CFD_CAMERA_FW = [(1.0, 0.6, 3.5), (1.0, 0.3, 0), (0, 1, 0)]
 
 
 def _render_contour_fw(mesh, scalars, cmap, save_path, clim=None):
@@ -70,7 +70,19 @@ def plot_cp_surface_fw(mesh, save_path):
     plt.close(fig)
 
 def plot_velocity_contour_fw(mesh, save_path):
-    _render_contour_fw(mesh, "Velocity_Mag", "turbo", save_path, clim=[0, 1.2])
+    plotter = pv.Plotter(off_screen=True, window_size=WINDOW_SIZE)
+    plotter.set_background(MERCEDES_DARK)
+    plotter.add_mesh(mesh, scalars="Velocity_Mag", cmap="turbo", show_edges=False, scalar_bar_args=SCALAR_BAR_ARGS, clim=[0, 1.2])
+    # Add low-density white streamlines
+    rake = pv.Line(pointa=(-3.9, 0.05, 0), pointb=(-3.9, 1.2, 0), resolution=10)  # Low density
+    stream = mesh.streamlines_from_source(
+        rake, vectors="Velocity", integration_direction="forward", max_length=10.0
+    )
+    plotter.add_mesh(stream, scalars="Velocity_Mag", cmap="turbo", line_width=1.5, color="white", opacity=0.7)
+    plotter.add_mesh(mesh.outline(), color=MERCEDES_GRAY)
+    plotter.camera_position = CFD_CAMERA_FW
+    plotter.screenshot(save_path)
+    plotter.close()
 
 
 def plot_cp_contour_fw(mesh, save_path):

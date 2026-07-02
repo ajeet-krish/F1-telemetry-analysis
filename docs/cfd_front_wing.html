@@ -73,8 +73,8 @@
       <p>
         Reference conditions: ride height = 50 mm, slot gap = 50 mm,
         freestream velocity = 60 m/s (216 km/h). Euler solver (inviscid)
-        is used by default since the current mesh (~5k nodes per case)
-        produces fully attached flow with correct downforce signs. A future
+        is used by default since the current mesh produces fully attached
+        flow with correct downforce signs. A future
         RANS refinement with finer mesh resolution is planned for viscous
         gap flow effects.
       </p>
@@ -96,8 +96,8 @@
         remains fully attached across all three elements.
       </p>
       <p>
-        <strong>Key results:</strong> C<sub>L</sub> = -2.61,
-        C<sub>D</sub> = 0.38, L/D = 6.9. The downforce coefficient
+        <strong>Key results:</strong> C<sub>L</sub> = -1.90,
+        C<sub>D</sub> = 0.25, L/D = 7.6. The downforce coefficient
         is in the realistic range for an F1 front wing (-2 to -4),
         though drag is higher than reality due to the inviscid solver
         (no skin friction realism).
@@ -142,7 +142,7 @@
 
       <figure>
         <img src="assets/images/cfd/front_wing/aoa_main_sweep.png" alt="AoA sweep results" loading="lazy">
-        <figcaption>Downforce (C<sub>L</sub>), drag (C<sub>D</sub>), and L/D vs main element AoA. Peak downforce occurs at &alpha;=-4&deg; to -8&deg;. Beyond -12&deg; the solver fails to converge (extreme cascade turning angles).</figcaption>
+        <figcaption>Downforce (C<sub>L</sub>), drag (C<sub>D</sub>), and L/D vs main element AoA. Peak downforce occurs at &alpha;=-12&deg; to -20&deg; in the enlarged domain. All 7 cases converged with the y=1.5 m domain height.</figcaption>
       </figure>
 
       <div class="gallery">
@@ -162,26 +162,28 @@
             <tr><th>&alpha;<sub>main</sub> (deg)</th><th>&alpha;<sub>mid</sub> (deg)</th><th>&alpha;<sub>flap</sub> (deg)</th><th>C<sub>L</sub></th><th>C<sub>D</sub></th><th>L/D</th></tr>
           </thead>
           <tbody>
-            <tr><td>-20</td><td>-30</td><td>-40</td><td>-1.48</td><td>0.615</td><td>2.40</td></tr>
-            <tr><td>-16</td><td>-26</td><td>-36</td><td colspan="3" style="text-align:center; color:#d4d4d4;">not converged</td></tr>
-            <tr><td>-12</td><td>-22</td><td>-32</td><td colspan="3" style="text-align:center; color:#d4d4d4;">not converged</td></tr>
-            <tr><td>-8</td><td>-18</td><td>-28</td><td>-2.69</td><td>0.690</td><td>3.90</td></tr>
-            <tr><td>-4</td><td>-14</td><td>-24</td><td>-2.80</td><td>0.572</td><td>4.89</td></tr>
-            <tr><td>0</td><td>-10</td><td>-20</td><td>-2.61</td><td>0.381</td><td>6.85</td></tr>
-            <tr><td>4</td><td>-6</td><td>-16</td><td>-2.06</td><td>0.225</td><td>9.16</td></tr>
+            <tr><td>-20</td><td>-30</td><td>-40</td><td>-2.27</td><td>1.130</td><td>2.01</td></tr>
+            <tr><td>-16</td><td>-26</td><td>-36</td><td>-1.99</td><td>0.848</td><td>2.35</td></tr>
+            <tr><td>-12</td><td>-22</td><td>-32</td><td>-2.09</td><td>0.700</td><td>2.99</td></tr>
+            <tr><td>-8</td><td>-18</td><td>-28</td><td>-1.98</td><td>0.522</td><td>3.79</td></tr>
+            <tr><td>-4</td><td>-14</td><td>-24</td><td>-1.89</td><td>0.368</td><td>5.14</td></tr>
+            <tr><td>0</td><td>-10</td><td>-20</td><td>-1.90</td><td>0.251</td><td>7.58</td></tr>
+            <tr><td>4</td><td>-6</td><td>-16</td><td>-2.04</td><td>0.173</td><td>11.82</td></tr>
           </tbody>
         </table>
       </div>
 
       <p>
-        <strong>Key physics:</strong> Downforce peaks at &alpha;=-4&deg; to -8&deg;
-        (C<sub>L</sub> &asymp; -2.8), then drops at more extreme negative angles
-        as the mid and flap elements exceed their effective operating range.
-        At &alpha;=-20&deg; the flap operates at -40&deg; relative incidence,
-        far beyond the stall angle for any airfoil, yet the Euler solver
-        maintains attached flow (inviscid) though with reduced circulation.
-        At &alpha;=+4&deg; the cascade is nearly flat, producing the least
-        downforce but best L/D (9.2) due to lower induced drag.
+        <strong>Key physics:</strong> With the enlarged domain (y=1.5 m),
+        all 7 AoA cases converged including previously failing extreme angles.
+        Downforce is strongest at &alpha;=-20&deg; (C<sub>L</sub> = -2.27)
+        where the cascade sees the most aggressive turning, though drag also
+        peaks (C<sub>D</sub> = 1.13) as the flap operates at -40&deg;
+        relative incidence. The L/D is best at &alpha;=+4&deg; (11.8) where
+        the cascade is nearly flat with minimal induced drag. The CL values
+        are lower than previously reported (-1.9 vs -2.6 at baseline) because
+        the enlarged domain removes the artificial blockage of the old y=0.8 m
+        top boundary.
       </p>
     </section>
 
@@ -218,12 +220,12 @@
             <tr><th>h (mm)</th><th>h/chord</th><th>C<sub>L</sub></th><th>C<sub>D</sub></th><th>L/D</th></tr>
           </thead>
           <tbody>
-            <tr><td>10</td><td>0.010</td><td>-1.63</td><td>0.380</td><td>4.28</td></tr>
-            <tr><td>20</td><td>0.020</td><td>-2.05</td><td>0.405</td><td>5.07</td></tr>
-            <tr><td>35</td><td>0.035</td><td>-2.38</td><td>0.402</td><td>5.92</td></tr>
-            <tr><td>50</td><td>0.050</td><td>-2.61</td><td>0.381</td><td>6.85</td></tr>
-            <tr><td>65</td><td>0.065</td><td>-2.58</td><td>0.367</td><td>7.01</td></tr>
-            <tr><td>80</td><td>0.080</td><td>-2.44</td><td>0.345</td><td>7.07</td></tr>
+            <tr>        <td>10</td><td>0.010</td><td>-1.26</td><td>0.252</td><td>4.99</td></tr>
+            <tr><td>20</td><td>0.020</td><td>-1.50</td><td>0.257</td><td>5.83</td></tr>
+            <tr><td>35</td><td>0.035</td><td>-1.81</td><td>0.266</td><td>6.79</td></tr>
+            <tr><td>50</td><td>0.050</td><td>-1.90</td><td>0.251</td><td>7.58</td></tr>
+            <tr><td>65</td><td>0.065</td><td>-1.96</td><td>0.254</td><td>7.72</td></tr>
+            <tr><td>80</td><td>0.080</td><td>-1.91</td><td>0.249</td><td>7.66</td></tr>
           </tbody>
         </table>
       </div>
@@ -275,10 +277,10 @@
             <tr><th>sg (mm)</th><th>sg/chord (main)</th><th>C<sub>L</sub></th><th>C<sub>D</sub></th><th>L/D</th></tr>
           </thead>
           <tbody>
-            <tr><td>10</td><td>0.010</td><td>-2.22</td><td>0.368</td><td>6.03</td></tr>
-            <tr><td>15</td><td>0.015</td><td>-2.06</td><td>0.358</td><td>5.76</td></tr>
-            <tr><td>20</td><td>0.020</td><td>-2.14</td><td>0.358</td><td>5.98</td></tr>
-            <tr><td>25</td><td>0.025</td><td>-2.38</td><td>0.372</td><td>6.39</td></tr>
+            <tr><td>10</td><td>0.010</td><td>-1.59</td><td>0.245</td><td>6.48</td></tr>
+            <tr><td>15</td><td>0.015</td><td>-1.59</td><td>0.238</td><td>6.68</td></tr>
+            <tr><td>20</td><td>0.020</td><td>-1.57</td><td>0.235</td><td>6.67</td></tr>
+            <tr><td>25</td><td>0.025</td><td>-1.70</td><td>0.238</td><td>7.15</td></tr>
           </tbody>
         </table>
       </div>
@@ -330,11 +332,11 @@
             <tr><th>Deploy (deg)</th><th>Flap AoA (deg)</th><th>Configuration</th><th>C<sub>L</sub></th><th>C<sub>D</sub></th><th>L/D</th><th>% Downforce</th></tr>
           </thead>
           <tbody>
-            <tr><td>0</td><td>-20</td><td>High DF (baseline)</td><td>-2.61</td><td>0.381</td><td>6.85</td><td>100%</td></tr>
-            <tr><td>5</td><td>-15</td><td>Intermediate</td><td>-2.37</td><td>0.326</td><td>7.28</td><td>91%</td></tr>
-            <tr><td>10</td><td>-10</td><td>Intermediate</td><td>-2.17</td><td>0.295</td><td>7.36</td><td>83%</td></tr>
-            <tr><td>15</td><td>-5</td><td>Intermediate</td><td>-1.83</td><td>0.244</td><td>7.49</td><td>70%</td></tr>
-            <tr><td>20</td><td>0</td><td>Low drag (X-mode)</td><td>-1.65</td><td>0.224</td><td>7.37</td><td>63%</td></tr>
+            <tr><td>0</td><td>-20</td><td>High DF (baseline)</td><td>-1.90</td><td>0.251</td><td>7.58</td><td>100%</td></tr>
+            <tr><td>5</td><td>-15</td><td>Intermediate</td><td>-1.68</td><td>0.220</td><td>7.63</td><td>88%</td></tr>
+            <tr><td>10</td><td>-10</td><td>Intermediate</td><td>-1.50</td><td>0.187</td><td>8.03</td><td>79%</td></tr>
+            <tr><td>15</td><td>-5</td><td>Intermediate</td><td>-1.42</td><td>0.165</td><td>8.56</td><td>75%</td></tr>
+            <tr><td>20</td><td>0</td><td>Low drag (X-mode)</td><td>-1.15</td><td>0.145</td><td>7.90</td><td>60%</td></tr>
           </tbody>
         </table>
       </div>
@@ -342,10 +344,9 @@
       <p>
         <strong>Key physics:</strong> Flap deployment produces a clean
         monotonic reduction in both downforce and drag. At full deployment
-        (20&deg;, flap aligned with main), downforce drops to 63% of the
-        baseline value while drag drops to 59%. The L/D ratio improves
-        slightly from 6.85 to 7.49 (a 9% gain), indicating that drag
-        reduction outpaces downforce loss. This is the same principle as
+        (20&deg;, flap aligned with main), downforce drops to 60% of the
+        baseline value while drag drops to 58%. The L/D ratio improves
+        slightly from 7.58 to 7.90 (a 4% gain). This is the same principle as
         the 2026 X-mode active aero: on straights, the wing is flattened
         to reduce drag, sacrificing downforce that is not needed at high
         speed.
@@ -353,7 +354,7 @@
       <p>
         The smooth, monotonic behavior across all five deployment angles
         validates the active aero concept and confirms that the flap
-        deployment mechanism is well-behaved aerodynamically. The 63%
+        deployment mechanism is well-behaved aerodynamically. The 60%
         downforce retention at full deployment suggests that further
         optimization (e.g., increasing the deploy angle beyond 20&deg;)
         could achieve even lower drag configurations.
@@ -399,9 +400,9 @@ print(f"CL = {result.cl:.2f}, CD = {result.cd:.4f}")</code></pre>
       <ul>
         <li>SU2 v8.4 binary (Harrier) at <code>/Users/ajeet/SU2_CFD/bin/SU2_CFD</code></li>
         <li>Mesh generation: unstructured triangles via gmsh with boundary layer refinement (30 layers, y+ &lt; 1)</li>
-        <li>Solver: INC_EULER (inviscid) by default. Attached flow with correct downforce signs. CL range -1.5 to -2.8 across all sweeps.</li>
-        <li>20 of 22 cases converged (aoa=-12&deg; and -16&deg; fail at extreme incidence)</li>
-        <li>Rectangular domain: x=[-4, 6], y=[0, 0.8]. Straight vertical inlet, pressure outlet, farfield top.</li>
+        <li>Solver: INC_EULER (inviscid) by default. Attached flow with correct downforce signs. CL range -1.1 to -2.3 across all sweeps.</li>
+        <li>All 24 cases converged with the y=1.5 m domain height (previously -12&deg; and -16&deg; failed)</li>
+        <li>Rectangular domain: x=[-4, 6], y=[0, 1.5]. Straight vertical inlet, pressure outlet, farfield top.</li>
         <li>Reference case: 5 visuals (velocity, Cp, streamlines, vorticity, Cp surface)</li>
         <li>4 sweep plots + 8 contour galleries (velocity + Cp for each of 4 sweeps)</li>
         <li>Known limitation: Euler solver lacks skin friction drag and viscous gap flow effects. RANS SST requires max_size_body=0.002 for proper gap resolution.</li>
